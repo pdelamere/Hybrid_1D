@@ -1,0 +1,8 @@
+*.o
+hybrid
+*.dat
+restart*
+*~
+*.pro
+*.mp4
+*.sav
