@@ -1,0 +1,12 @@
+1700e-9               magnetic field (Tesla)
+16                    atomic mass for reference species
+64                    mass of pickup ion species
+3000e15               density (km^-3)
+0.1                   particle time step (fraction of omega_i)
+10                    number of time steps
+20                    diagnostic output interval
+0.0                   flow speed (km/s) 
+30.0                  thermal speed for Maxwellian (km/s)
+300000                Ni_max
+0.9                   Ni_tot initial (fraction of Ni_max)
+0.5                   grid size as fraction of lambda_i
