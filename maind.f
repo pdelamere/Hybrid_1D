@@ -5,7 +5,18 @@ c maind.f
 c Parallel version with no ion fluid, Nov 24, 2004
 c----------------------------------------------------------------------
 
-      include 'incurv.h'
+      USE global
+      USE dimensions
+      USE inputs
+      USE mpi
+      USE initial
+      USE misc
+      USE gutsp
+      USE gutsf
+      USE part_init
+c      include 'dimensions.h'
+c      include 'incurv.h'
+
 
 c----------------------------------------------------------------------
 c Listing of all declared variables
@@ -108,6 +119,9 @@ c      integer*4 seed
 
 c----------------------------------------------------------------------
 
+      call readInputs()
+      call initparameters()
+
       call MPI_INIT(ierr)
       call MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
       call MPI_COMM_SIZE(MPI_COMM_WORLD, procnum, ierr)
@@ -119,60 +133,21 @@ c      seed = float(t1)
 c----------------------------------------------------------------------
 c Initialize all variables
 c----------------------------------------------------------------------
-      write(*,*) 'initializing variables...'
+c      write(*,*) 'initializing variables...'
+
 
       Ni_tot = Ni_tot_0
       Ni_tot_sw = Ni_tot
       Ni_tot_sys = Ni_tot*procnum
-      print *,'Ni_tot_sys, Ni_tot..',Ni_tot_sys,Ni_tot,Ni_tot_sw
 
-   !----------------------------------------------------------------------
-   !   check input parameters
-   !----------------------------------------------------------------------
+c      print *,'Ni_tot_sys, Ni_tot..',Ni_tot_sys,Ni_tot,Ni_tot_sw
 
-      if (my_rank .eq. 0) then 
-      write(*,*) 'alpha...',alpha
-      write(*,*) 'c/wpi...',lambda_i,dx,dy,delz
-      write(*,*) 'dt......',dt,dtsub_init
-
-      write(*,*) ' '
-      write(*,*) 'Bottom parameters...'
-      write(*,*) ' '
-      va =  b0_init/sqrt(mu0*m_bottom*np_bottom/1e9)/1e3
-      write(*,*) 'Alfven velocity.......',va
-      write(*,*) 'Thermal velocity......',vth_top
-      write(*,*) 'Mach number...........',vbottom/(va + vth_bottom)
-
-      write(*,*) 'Thermal gyroradius..',m_bottom*vth_bottom/(q*b0_init),
-     x            m_bottom*vth_bottom/(q*b0_init)/dx
-      cwpi = 3e8/sqrt((np_bottom/1e9)*q*q/(epsilon*m_bottom))
-      write(*,*) 'Ion inertial length...',cwpi/1e3,cwpi/1e3/dx
-
-      write(*,*) 'Particles per cell....',Ni_tot_sys/(nx*nz)
-
-      write(*,*) ' '
-      write(*,*) 'Top parameters...'
-      write(*,*) ' '
-
-      va =  b0_init/sqrt(mu0*m_top*np_top/1e9)/1e3
-      write(*,*) 'Alfven velocity.......',va
-      write(*,*) 'Thermal velocity......',vth_top
-      write(*,*) 'Mach number...........',vtop/(va + vth_top)
-
-      write(*,*) 'Thermal gyroradius....',m_top*vth_top/(q*b0_init),
-     x            m_top*vth_top/(q*b0_init)/dx
-      cwpi = 3e8/sqrt((np_top/1e9)*q*q/(epsilon*m_top))
-      write(*,*) 'Ion inertial length...',cwpi/1e3,cwpi/1e3/dx
-
+      if (my_rank .eq. 0) then
+      call check_inputs()
       write(*,*) 'Particles per cell....',Ni_tot_sys/(nx*nz)
       write(*,*) ' '
       endif
-
 c      stop
-
-   !----------------------------------------------------------------------
-
-
 
 c      Ni_tot = 6
       mstart = 0
@@ -181,12 +156,15 @@ c      Ni_tot = 6
       nuei = 0.0
 
 c initialize seed for each processor
+c      write(*,*) 't1...',t1
+c      stop
 
-      seed = 123456789 +my_rank*100
+      seed = t1 +my_rank*100
       call random_initialize(seed)
-      write(*,*) 'seed...',seed,my_rank
+c      write(*,*) 'seed...',seed,my_rank
       call MPI_BARRIER(MPI_COMM_WORLD,ierr)            
-      write(*,*) 'rand init ...',pad_ranf(),my_rank,seed
+c      write(*,*) 'rand init ...',pad_ranf(),my_rank,seed
+
 
 c      call random_seed
 c      call random_seed(size = seedsize)
@@ -257,14 +235,20 @@ c            enddo
 c         enddo
 c      enddo
 
-      write(*,*) 'SW particle setup maxwl 1...'
+c      write(*,*) 'SW particle setup maxwl 1...'
 
 c      call sw_part_setup_temp(np,vp,vp1,xp,input_p,up)
 c      call sw_part_setup_maxwl(np,vp,vp1,xp,input_p,up,np_t_flg,
 c     x                         np_b_flg)
 
+c      write(*,*) 'starting part setup...'
+
+      call MPI_Barrier(MPI_COMM_WORLD,ierr)
+
       call sw_part_setup_maxwl_mix(np,vp,vp1,xp,input_p,up,np_t_flg,
      x                         np_b_flg)
+
+c      write(*,*) 'finishing part setup...'
 c      call part_setup_maxwl_p(np,vp,vp1,xp,input_p,up,np_t_flg,
 c     x                         np_b_flg)
 c      call part_setup_maxwl_h(np,vp,vp1,xp,input_p,up,np_t_flg,
@@ -274,7 +258,7 @@ c     x                 mrat(Ni_tot:Ni_tot+1)
 
 
       Ni_tot_sys = Ni_tot*procnum
-      write(*,*) 'Ni_tot_sys...top and bottom...',Ni_tot_sys,Ni_tot
+c      write(*,*) 'Ni_tot_sys...top and bottom...',Ni_tot_sys,Ni_tot
       write(*,*) 'Particles per cell....',Ni_tot_sys/(nx*nz)
 c      stop
 
@@ -455,9 +439,10 @@ c      xp(l,3) = qz(nz/2)+dx/2
       do 1 m = mstart+1, nt
 
 c        write(*,*) ' '
-         write(*,*) 'time...', m, m*dt,my_rank
-
-         write(*,*) 'm1...',m_arr(1),mrat(1)
+         if (my_rank .eq. 0) then
+            write(*,*) 'time...', m, m*dt,my_rank
+         endif
+c         write(*,*) 'm1...',m_arr(1),mrat(1)
 
          !Calculate neutral density
 
@@ -465,10 +450,10 @@ c        write(*,*) ' '
 c         if (Ni_tot .lt. Ni_max) then
 cc         call Ionize_pluto(np,vp,vp1,xp,m,input_p,up)
 c         call Ionize_pluto_mp(np,vp,vp1,xp,m,input_p,up)
-         call Ionize_sw_mp(np,vp,vp1,xp,m,input_p,up)
+c         call Ionize_sw_mp(np,vp,vp1,xp,m,input_p,up)
 c         endif
 
-         write(*,*) 'Ni_tot...',Ni_tot,dNi,my_rank !/beta
+c         write(*,*) 'Ni_tot...',Ni_tot,dNi,my_rank !/beta
 c         write(*,*) ' '
 
          call get_interp_weights(xp)
@@ -479,7 +464,7 @@ c         write(*,*) ' '
          !energy diagnostics
          call get_bndry_Eflux(b1,E)
          call Energy_diag(vp,b0,b1,E,Evp,Euf,EB1,EB1x,EB1y,EB1z,EE,
-     x                    EeP,etemp,nu,up,np)
+     x                    EeP,nu,up,np)
 
          call curlB(bt,np,aj)
          call cov_to_contra(bt,btmf)

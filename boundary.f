@@ -1,8 +1,15 @@
+      module boundary
+
+      USE global
+     
+      contains
+
+
 c---------------------------------------------------------------------
       SUBROUTINE periodic(b)
 c---------------------------------------------------------------------
 CVD$F VECTOR
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real b(nx,ny,nz,3)
 
@@ -42,7 +49,7 @@ c z direction
 
 
       return
-      end
+      end SUBROUTINE periodic
 c---------------------------------------------------------------------
 
 
@@ -55,7 +62,7 @@ c values of the normal components.  These values are undated later
 c by the requirement that divB=0.  This helps with the values on
 c corners and edges.
 c---------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real b(nx,ny,nz,3)
 
@@ -107,14 +114,14 @@ c             b(i,j,nz,3) = b(i,j,nz-1,3)
 
 
       return
-      end
+      end SUBROUTINE tangent_B_zero
 c---------------------------------------------------------------------
 
 
 c---------------------------------------------------------------------
       SUBROUTINE copy_to_boundary(b)
 c---------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real b(nx,ny,nz,3)
 
@@ -152,14 +159,14 @@ c z surfaces
  30          continue
 
       return
-      end
+      end SUBROUTINE copy_to_boundary
 c---------------------------------------------------------------------
 
 
 c---------------------------------------------------------------------
       SUBROUTINE periodic_scalar(b)
 c---------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real b(nx,ny,nz)
 
@@ -196,7 +203,7 @@ c             do 30 m=1,3
 
 
       return
-      end
+      end SUBROUTINE periodic_scalar
 c---------------------------------------------------------------------
 
 
@@ -204,7 +211,7 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
       SUBROUTINE fix_normal_b(b)
 c---------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real b(nx,ny,nz,3)
 
@@ -248,13 +255,13 @@ c 30         continue
 
 
       return
-      end
+      end SUBROUTINE fix_normal_b
 c---------------------------------------------------------------------
 
 c---------------------------------------------------------------------
       SUBROUTINE smooth_boundary(b)
 c---------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real b(nx,ny,nz,3)
 
@@ -283,14 +290,14 @@ c z surfaces
  30          continue
 
       return
-      end
+      end SUBROUTINE smooth_boundary
 c---------------------------------------------------------------------
 
 
 c---------------------------------------------------------------------
       SUBROUTINE fix_tangential_E(E)
 c---------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real E(nx,ny,nz,3)
 
@@ -340,10 +347,10 @@ c 30         continue
 c      call periodic(E)
 
       return
-      end
+      end SUBROUTINE fix_tangential_E
 c---------------------------------------------------------------------
 
-
+      end module boundary
 
 
 

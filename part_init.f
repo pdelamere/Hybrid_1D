@@ -1,8 +1,20 @@
+      MODULE part_init
+
+
+      USE global
+      USE dimensions
+      USE misc
+      USE gutsp
+      USE mpi
+
+      contains
+
+
 c----------------------------------------------------------------------
       SUBROUTINE Energy_diag(vp,b0,b1,E,Evp,Euf,EB1,EB1x,EB1y,EB1z,
-     x                       EE,EeP,etemp,nu,up,np)
+     x                       EE,EeP,nu,up,np)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real vp(Ni_max,3),
 c     x     uf(nx,ny,nz,3),
@@ -10,13 +22,13 @@ c     x     nf(nx,ny,nz),
      x     b0(nx,ny,nz,3),
      x     b1(nx,ny,nz,3),
      x     E(nx,ny,nz,3),
-     x     etemp(nx,ny,nz),
+c     x     etemp(nx,ny,nz),
      x     nu(nx,ny,nz),
      x     up(nx,ny,nz,3),
      x     np(nx,ny,nz)
 
       real mO_q
-      parameter(mO_q = mO/q)
+     
 
       real Evp                  !kinetic energy of particles
       real Euf                  !kinetic energy of fluid flow
@@ -32,6 +44,8 @@ c     x     nf(nx,ny,nz),
       real recvbuf
       integer count
       count = 1
+
+      mO_q = mO/q
 
       Euf = 0.0
       EB1 = 0.0
@@ -97,10 +111,12 @@ c      write(*,*) 'Total energy (J).............',total_E
 cc      write(*,*) 'Total energy w/ eP (J).......',total_E+EeP
 c      write(*,*) 'Energy thru boundaries.......',bndry_Eflux/S_input_E
 c      write(*,*) 'Normalized particle energy...',aveEvp
+      if (my_rank .eq. 0) then
       write(*,*) 'Normalized energy............',total_E/S_input_E,
      x   my_rank
       write(*,*) 'Normalized energy (bndry)....',
      x                (total_E)/(S_input_E+bndry_Eflux)
+      endif
 c      write(*,*) 'Normalized energy (no b1z)...',(S_Evp+Euf+EE+EB1x+
 c     x                                            EB1y)/S_input_E
 cc      write(*,*) 'Normalized energy (w/ eP)....',
@@ -119,7 +135,7 @@ c 20            continue
       prev_Etot = norm_E
 
       return
-      end
+      end SUBROUTINE Energy_diag
 c----------------------------------------------------------------------
 
 
@@ -127,7 +143,7 @@ c----------------------------------------------------------------------
 c----------------------------------------------------------------------
       SUBROUTINE sw_part_setup(np,vp,vp1,xp,input_p,up)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real np(nx,ny,nz)
       real vp(Ni_max,3)
@@ -182,23 +198,23 @@ c         xp(l,3) = qz(k)+dz_grid(k)*(0.5-pad_ranf())
 
         
  
-      write(*,*) 'get interp weights...'
+c      write(*,*) 'get interp weights...'
       call get_interp_weights(xp)
-      write(*,*) 'update_np...'
+c      write(*,*) 'update_np...'
       call update_np(np)
-      write(*,*) 'update_up...'
+c      write(*,*) 'update_up...'
       call update_up(vp,np,up)
-      write(*,*) 'update_up complete...'
+c      write(*,*) 'update_up complete...'
 
       return
-      end
+      end SUBROUTINE sw_part_setup
 c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
       SUBROUTINE sw_part_setup_temp(np,vp,vp1,xp,input_p,up)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real np(nx,ny,nz)
       real vp(Ni_max,3)
@@ -285,7 +301,7 @@ c      enddo
    
 
       return
-      end
+      end SUBROUTINE sw_part_setup_temp
 c----------------------------------------------------------------------
 
 
@@ -293,7 +309,7 @@ c----------------------------------------------------------------------
       SUBROUTINE sw_part_setup_maxwl(np,vp,vp1,xp,input_p,up,np_t_flg,
      x                               np_b_flg)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real np(nx,ny,nz)
       real vp(Ni_max,3)
@@ -620,7 +636,7 @@ c      enddo
    
 
       return
-      end
+      end SUBROUTINE sw_part_setup_maxwl
 c----------------------------------------------------------------------
 
 
@@ -628,7 +644,8 @@ c----------------------------------------------------------------------
       SUBROUTINE sw_part_setup_maxwl_mix(np,vp,vp1,xp,input_p,up,
      x     np_t_flg,np_b_flg)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
+c      include mpif.h
 
       real np(nx,ny,nz)
       real vp(Ni_max,3)
@@ -740,7 +757,7 @@ c     x       (cosh((qz(kk)-qz(nz/2))/Lo))**(-2)
 c         vp(l,1) = vsw*(tanh((qz(k)-qz(nz/2))/(Lo))) + vx !+dvx
 c         vp(l,1) =  50.0*exp(-(xp(l,3)-qz(nz/4*3))**2/(20.*delz)**2)+vx
 c         vp(l,2) =  50.0*exp(-(xp(l,3)-qz(nz/4))**2/(20.*delz)**2)+vy 
-         vp(l,1) = 0.0*exp(-(xp(l,3)-qz(nz/2))**2/(10.*delz)**2)+vx
+         vp(l,1) = 57.0*exp(-(xp(l,3)-qz(nz/2))**2/(10.*delz)**2)+vx
          vp(l,2) = vy 
          vp(l,3) = vz 
 
@@ -942,20 +959,18 @@ c 22         continue
  69      enddo
 
 
-
-         
-      write(*,*) 'get interp weights...'
+c      write(*,*) 'get interp weights...'
       call get_interp_weights(xp)
-      write(*,*) 'update_np...'
+c      write(*,*) 'update_np...'
       call update_np(np)
-      write(*,*) 'update_up...'
+c      write(*,*) 'update_up...'
       call update_up(vp,np,up)
-      write(*,*) 'update_up complete...'
+c      write(*,*) 'update_up complete...'
 
    
 
       return
-      end
+      end SUBROUTINE sw_part_setup_maxwl_mix
 c----------------------------------------------------------------------
 
 
@@ -966,7 +981,7 @@ c----------------------------------------------------------------------
       SUBROUTINE sw_part_setup_maxwl_eq(np,vp,vp1,xp,input_p,up,
      x                               np_t_flg,np_b_flg)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real np(nx,ny,nz)
       real vp(Ni_max,3)
@@ -1242,7 +1257,7 @@ c      enddo
    
 
       return
-      end
+      end SUBROUTINE sw_part_setup_maxwl_eq
 c----------------------------------------------------------------------
 
 
@@ -1253,7 +1268,7 @@ c----------------------------------------------------------------------
       SUBROUTINE part_setup_maxwl_p(np,vp,vp1,xp,input_p,up,np_t_flg,
      x                               np_b_flg)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real np(nx,ny,nz)
       real vp(Ni_max,3)
@@ -1486,7 +1501,7 @@ c      enddo
    
 
       return
-      end
+      end SUBROUTINE part_setup_maxwl_p
 c----------------------------------------------------------------------
 
 
@@ -1494,7 +1509,7 @@ c----------------------------------------------------------------------
       SUBROUTINE part_setup_maxwl_h(np,vp,vp1,xp,input_p,up,np_t_flg,
      x                               np_b_flg)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real np(nx,ny,nz)
       real vp(Ni_max,3)
@@ -1740,7 +1755,7 @@ c      enddo
    
 
       return
-      end
+      end SUBROUTINE part_setup_maxwl_h
 c----------------------------------------------------------------------
 
 
@@ -1748,7 +1763,7 @@ c----------------------------------------------------------------------
       SUBROUTINE sw_part_setup_maxwl_1(np,vp,vp1,xp,input_p,up,np_t_flg,
      x                               np_b_flg)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real np(nx,ny,nz)
       real vp(Ni_max,3)
@@ -1879,10 +1894,12 @@ c      enddo
    
 
       return
-      end
+      end SUBROUTINE sw_part_setup_maxwl_1
 c----------------------------------------------------------------------
 
 
+
+      end MODULE part_init
 
 
 

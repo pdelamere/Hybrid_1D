@@ -1,8 +1,15 @@
+      module gutsf
+
+      USE global
+      USE boundary
+      
+      contains
+
 c----------------------------------------------------------------------
       SUBROUTINE f_update_tlev(b1,b12,b1p2,bt,b0)
 c loops run 1 to n since values are only being copied
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
       
       real b1(nx,ny,nz,3),
      x     b12(nx,ny,nz,3),
@@ -24,7 +31,7 @@ c                  uf2(i,j,k,m) = uf(i,j,k,m)
  10               continue
       
       return
-      end
+      end SUBROUTINE f_update_tlev
 c----------------------------------------------------------------------
 
 c----------------------------------------------------------------------
@@ -44,7 +51,7 @@ c just copy the interior values to the boundary.
 c----------------------------------------------------------------------
 CVD$R VECTOR
 
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real aa(nx,ny,nz,3)        !main cell contravarient vector 
       real bbmf(nx,ny,nz,3)      !main cell contravarient vector
@@ -119,7 +126,7 @@ c about the grid points.
 
 
       return
-      end
+      end SUBROUTINE crossf
 c----------------------------------------------------------------------
 
 
@@ -137,7 +144,7 @@ c using a linear interpolation of the k and k-1 values to the grid
 c point location.
 c----------------------------------------------------------------------
 CVD$R VECTOR
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real bt(nx,ny,nz,3),   !main cell covarient
      x     btmf(nx,ny,nz,3)  !main cell contravarient
@@ -207,7 +214,7 @@ c      call boundaries(btmf)
       call periodic(btmf)
 
       return
-      end
+      end SUBROUTINE cov_to_contra
 c----------------------------------------------------------------------
 
 
@@ -221,7 +228,7 @@ c the cell dimensions since dz_grid is not equal to dz_cell on non-
 c uniform grid.
 c----------------------------------------------------------------------
 CVD$R VECTOR
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real b1(nx,ny,nz,3),
 c     x     nf(nx,ny,nz),
@@ -276,7 +283,7 @@ c     x                 + 0.5*(np(i,j,k)+np(i,j,kp))
 c      call periodic(aj)
 
       return
-      end
+      end SUBROUTINE curlB
 c----------------------------------------------------------------------
 
 
@@ -286,7 +293,7 @@ c E is dual cell covarient, and curl_E will be returned as main
 c cell covarient...as all magnetic fields are.  All i,j,k exclude
 c boundaries.  Boundaries are taken care of in main fluid code.
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real E(nx,ny,nz,3)      !E field, main cell contravarient
       real curl_E(nx,ny,nz,3) !curl of E, main cell covarient
@@ -314,7 +321,7 @@ c      call periodic(E)
 c      call periodic(curl_E)
 
       return
-      end
+      end SUBROUTINE curlE
 c----------------------------------------------------------------------
 
 
@@ -325,7 +332,7 @@ cc calculated.  Result returned to main cell contravarient
 cc postion.
 cc----------------------------------------------------------------------
 cCVD$R VECTOR
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real u(nx,ny,nz,3),  !main cell contravarient fluid velocity (uf)
 c     x     b(nx,ny,nz,3),   !main cell contravarient bt (btmf)
@@ -405,7 +412,7 @@ cc uf and btmf are gathered at main cell center and uf.B*B
 cc calculated.  Result returned to main cell contravarient
 cc postion.
 cc----------------------------------------------------------------------
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real u(nx,ny,nz,3),  !main cell contravarient fluid velocity (uf)
 c     x     b(nx,ny,nz,3),   !main cell contravarient bt (btmf)
@@ -530,7 +537,7 @@ cc----------------------------------------------------------------------
 c      SUBROUTINE get_ugradu_Lax(uf,ugradu,delta_t)
 cc----------------------------------------------------------------------
 cCVD$R VECTOR
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real uf(nx,ny,nz,3),
 c     x     ugradu(nx,ny,nz,3)
@@ -642,7 +649,7 @@ c     x                  gradPf)
 cc Need to treat boundaries separately!!
 cc----------------------------------------------------------------------
 cCVD$R VECTOR
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real Ef(nx,ny,nz,3),
 c     x     aj(nx,ny,nz,3),
@@ -746,7 +753,7 @@ cc This is the heart of the fluid velocity update.  It solves eqn. 18
 cc (Dan's paper) for uf+
 cc----------------------------------------------------------------------
 cCVD$R VECTOR
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real Ef(nx,ny,nz,3),
 c     x     btmf(nx,ny,nz,3),
@@ -843,7 +850,7 @@ cc Calculate the fluid velocity, uf,  at the new time step and replace
 cc uf1 with the new value, uf, in preparation for the next time step.
 cc----------------------------------------------------------------------
 cCVD$R VECTOR
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real Ef(nx,ny,nz,3),
 c     x     b0(ny),
@@ -931,7 +938,7 @@ cc Calculate the fluid velocity, uf,  at the new time step and replace
 cc uf1 with the new value, uf, in preparation for the next time step.
 cc----------------------------------------------------------------------
 cCVD$R VECTOR
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real Ef(nx,ny,nz,3),
 c     x     btmf(nx,ny,nz,3),
@@ -1005,7 +1012,7 @@ c E must be at time level m. We have uf at levels m-1/2 and m+1/2, so
 c the average value is used for uf in the calculation of ui.
 c----------------------------------------------------------------------
 CVD$R VECTOR
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real E(nx,ny,nz,3),
      x     b0(nx,ny,nz,3),
@@ -1107,7 +1114,7 @@ c      E(nx-1:nx,:,:,2) = 0.0
 cc      E(nx-1:nx,:,:,1) = 0.0
 
       return
-      end
+      end SUBROUTINE get_E
 c----------------------------------------------------------------------
 
 
@@ -1116,7 +1123,7 @@ c----------------------------------------------------------------------
 c Predictor step in magnetic field update.
 c----------------------------------------------------------------------
 CVD$R VECTOR
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real b0(nx,ny,nz,3),
      x     b1(nx,ny,nz,3),
@@ -1167,7 +1174,7 @@ c      call fix_normal_b(b1p2)
 
 
       return
-      end
+      end SUBROUTINE predict_B
 c----------------------------------------------------------------------
 
 
@@ -1179,7 +1186,7 @@ c calculated as 0.5*(b1 + b1p2).  uf and np are already at time level
 c m + 1/2, so they are used as is. 
 c----------------------------------------------------------------------
 CVD$R VECTOR
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real E(nx,ny,nz,3),
      x     b0(nx,ny,nz,3),
@@ -1292,7 +1299,7 @@ c      E(nx-1:nx,:,:,2) = 0.0
 cc      E(nx-1:nx,:,:,1) = 0.0
 
       return
-      end
+      end SUBROUTINE get_Ep1
 c----------------------------------------------------------------------
 
 
@@ -1301,7 +1308,7 @@ c----------------------------------------------------------------------
 c Corrector step in magnetic field update.
 c----------------------------------------------------------------------
 CVD$R VECTOR
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real b0(nx,ny,nz,3),
      x     b1(nx,ny,nz,3),
@@ -1349,14 +1356,14 @@ c      call damp(b1p2)
 c      call fix_normal_b(b1p2)
 
       return
-      end
+      end SUBROUTINE correct_B
 c----------------------------------------------------------------------
 
 
 cc----------------------------------------------------------------------
 c      SUBROUTINE predict_nf(nf,nf1,nf3,nfp1,uf,divu,b1)
 cc----------------------------------------------------------------------
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real nf(nx,ny,nz),
 c     x     nf1(nx,ny,nz),
@@ -1418,7 +1425,7 @@ cc----------------------------------------------------------------------
 c      SUBROUTINE correct_nf(nf,nf1,ufp1)
 cc----------------------------------------------------------------------
 
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real nf(nx,ny,nz),
 c     x     nf1(nx,ny,nz),
@@ -1466,7 +1473,7 @@ cc----------------------------------------------------------------------
 cc----------------------------------------------------------------------
 c      SUBROUTINE trans_nf_Lax(nf,nf1,nfp1,uf)
 cc----------------------------------------------------------------------
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real nf(nx,ny,nz),
 c     x     nf1(nx,ny,nz),
@@ -1529,7 +1536,7 @@ cc----------------------------------------------------------------------
 c      SUBROUTINE trans_nf_LaxWend1(nf,nf1,nfp1,uf)
 cc----------------------------------------------------------------------
 cCVD$R VECTOR
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real nf(nx,ny,nz),
 c     x     nf1(nx,ny,nz),
@@ -1583,7 +1590,7 @@ cc----------------------------------------------------------------------
 c      SUBROUTINE trans_nf_LaxWend2(nf,nf1,nfp1,ufp1)
 cc----------------------------------------------------------------------
 cCVD$R VECTOR
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real nf(nx,ny,nz),
 c     x     nf1(nx,ny,nz),
@@ -1630,7 +1637,7 @@ cc----------------------------------------------------------------------
 c      SUBROUTINE trans_pf_LaxWend1(pf,pf1,uf)
 cc----------------------------------------------------------------------
 cCVD$R VECTOR
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real pf(nx,ny,nz),
 c     x     pf1(nx,ny,nz),
@@ -1700,7 +1707,7 @@ cc----------------------------------------------------------------------
 c      SUBROUTINE trans_pf_LaxWend2(pf,pf1,ufp1)
 cc----------------------------------------------------------------------
 cCVD$R VECTOR
-c      include 'incurv.h'
+c      !include 'incurv.h'
 
 c      real pf(nx,ny,nz),
 c     x     pf1(nx,ny,nz),
@@ -1765,6 +1772,7 @@ c      return
 c      end
 cc----------------------------------------------------------------------
 
+      end module gutsf
 
 
 

@@ -5,3 +5,7 @@ restart*
 *.pro
 *.mp4
 *.sav
+tmp3/*
+*.mod
+*#
+b0.dat

@@ -1,9 +1,18 @@
+      MODULE gutsp
+
+      USE global
+      USE misc
+      USE mpi
+      USE boundary
+
+      contains
+
 c----------------------------------------------------------------------
       SUBROUTINE Neut_Center(cx,cy,cz)
 c Locates the cartisian coords of the center of the neutral cloud
 c at a given time t.
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !include 'incurv.h'
 
 c      t = m*dt + tstart          !0.2 reflects canister evacuation time
 c      cx = qx(ri) + vsat*(t-0.2) !release point + cloud expansion
@@ -23,7 +32,7 @@ c      cz = qz(rk)                !by zero.  That is to avoid
                                  !whole grid points, otherwise
                                  !danger of r = 0.
       return
-      end
+      end SUBROUTINE Neut_Center
 c----------------------------------------------------------------------
 
 
@@ -34,7 +43,7 @@ c----------------------------------------------------------------------
 CVD$R VECTOR
 
 
-      include 'incurv.h'
+      !include 'incurv.h'
 
       real xp(Ni_max,3)
       real vp(Ni_max,3)
@@ -62,7 +71,7 @@ c      write(*,*) 'removing ion...',ion_l
       Ni_tot = Ni_tot - 1
 
       return
-      end
+      end SUBROUTINE remove_ion
 c----------------------------------------------------------------------
 
 
@@ -73,7 +82,7 @@ c arrays, np, vp, up (ion particle density, velocity,
 c and bulk velocity).   
 c----------------------------------------------------------------------
 CVD$R VECTOR
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real np(nx,ny,nz),
      x     vp(Ni_max,3),
@@ -309,7 +318,7 @@ c      write(*,*) 'Ni_tot after wake....',Ni_tot
 
       
       return
-      end
+      end SUBROUTINE Ionize_pluto
 c----------------------------------------------------------------------
 
 
@@ -320,7 +329,7 @@ c arrays, np, vp, up (ion particle density, velocity,
 c and bulk velocity).   
 c----------------------------------------------------------------------
 CVD$R VECTOR
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real np(nx,ny,nz),
      x     vp(Ni_max,3),
@@ -527,7 +536,7 @@ c      write(*,*) 'Ni_tot after wake....',Ni_tot
 
       
       return
-      end
+      end SUBROUTINE Ionize_pluto_mp
 c----------------------------------------------------------------------
 
 
@@ -538,7 +547,7 @@ c arrays, np, vp, up (ion particle density, velocity,
 c and bulk velocity).   
 c----------------------------------------------------------------------
 CVD$R VECTOR
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real np(nx,ny,nz),
      x     vp(Ni_max,3),
@@ -651,7 +660,7 @@ c      stop
       call update_up(vp,np,up)
       
       return
-      end
+      end SUBROUTINE Ionize_sw_mp
 c----------------------------------------------------------------------
 
 
@@ -659,7 +668,7 @@ c----------------------------------------------------------------------
 c----------------------------------------------------------------------
       SUBROUTINE check_min_den(np,xp,vp,vp1,up,bt)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real np(nx,ny,nz),
      x     xp(Ni_max,3),
@@ -730,7 +739,7 @@ c     x                                  npart,ipart
       enddo
 
       return
-      end
+      end SUBROUTINE check_min_den
 c----------------------------------------------------------------------
 
 
@@ -741,7 +750,7 @@ c bulk flow velocity to time level n, and replaces up_n-3/2
 c with up_n-1/2
 c----------------------------------------------------------------------
 CVD$R VECTOR
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real up(nx,ny,nz,3),
      x     vp(Ni_max,3),
@@ -758,7 +767,7 @@ CVD$R VECTOR
       call update_up(v_at_n,np,up)
 
       return
-      end
+      end SUBROUTINE extrapol_up
 c----------------------------------------------------------------------
 
 
@@ -766,7 +775,7 @@ c----------------------------------------------------------------------
       SUBROUTINE get_Ep(Ep,aj,np,up,btc,nu)
 c----------------------------------------------------------------------
 CVD$F VECTOR
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real Ep(Ni_max,3),
      x     aj(nx,ny,nz,3),
@@ -889,7 +898,7 @@ c                     + etar(i,j,k,m)*aj3(m)
  10      continue
 
       return
-      end
+      end SUBROUTINE get_Ep
 c----------------------------------------------------------------------
 
 
@@ -897,7 +906,7 @@ c----------------------------------------------------------------------
       SUBROUTINE get_vplus_vminus(Ep,btc,vp,vplus,vminus)
 c----------------------------------------------------------------------
 
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real Ep(Ni_max,3),
      x     btc(nx,ny,nz,3),   !bt at cell center
@@ -1015,7 +1024,7 @@ c         if (kp .ge. nz) kp = 2 !periodic boundary conditions
  30   continue
 
       return
-      end
+      end SUBROUTINE get_vplus_vminus
 c----------------------------------------------------------------------
 
 
@@ -1025,7 +1034,7 @@ c The routine calculates v at time level n, and the associated bulk
 c flow velocity up using the v+, v- technique.  The new up at
 c time level n replaces the provisional extrapolation for up.
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real vp1(Ni_max,3),    !particle velocities at t level n
      x     vplus(Ni_max,3),
@@ -1042,14 +1051,14 @@ c            write(*,*) 'vp1....',m,vp1(l,m)
       call update_up(vp1,np,up)
 
       return
-      end
+      end SUBROUTINE improve_up
 c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
       SUBROUTINE get_vp_final(Ep,vp,vp1,vplus)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real Ep(Ni_max,3),
      x     vp(Ni_max,3),    !particle velocities at t level n+1/2
@@ -1063,14 +1072,14 @@ c----------------------------------------------------------------------
  10         continue
 
       return
-      end
+      end SUBROUTINE get_vp_final
 c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
       SUBROUTINE move_ion_half(xp,vp,vp1,input_p)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real xp(Ni_max,3),
      x     vp(Ni_max,3),
@@ -1161,7 +1170,7 @@ c         vp(:,1) = -vp(:,1)
 
 
       return
-      end
+      end SUBROUTINE move_ion_half
 c----------------------------------------------------------------------
 
 
@@ -1169,7 +1178,7 @@ c----------------------------------------------------------------------
 c----------------------------------------------------------------------
       SUBROUTINE check_min_den_boundary(np,xp,vp,up)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real np(nx,ny,nz),
      x     xp(Ni_max,3),
@@ -1408,7 +1417,7 @@ c                        input_p(m) = input_p(m) - m_arr(l)*vp(l,m)/beta
       
       
       return
-      end
+      end SUBROUTINE check_min_den_boundary
 c----------------------------------------------------------------------
 
 
@@ -1416,7 +1425,7 @@ c----------------------------------------------------------------------
 c----------------------------------------------------------------------
       SUBROUTINE check_min_den_boundary_1(np,xp,vp,up)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real np(nx,ny,nz),
      x     xp(Ni_max,3),
@@ -1684,7 +1693,7 @@ c                        input_p(m) = input_p(m) - m_arr(l)*vp(l,m)/beta
       
       
       return
-      end
+      end SUBROUTINE check_min_den_boundary_1
 c----------------------------------------------------------------------
 
 
@@ -1699,7 +1708,7 @@ c grid points associated with the interpolation.  These 8 points
 c are determined by the location of the particle within the main
 c cell.  There are 8 sets of 8 grid points for each cell.
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real xp(Ni_max,3)
       real x1,x2,y1,y2,z1,z2,vol
@@ -1965,7 +1974,7 @@ c 888888888888888888888888888888888888888888888888888888888888888888888
 
 
       return
-      end
+      end SUBROUTINE get_interp_weights
 c----------------------------------------------------------------------
 
 
@@ -1973,7 +1982,7 @@ c----------------------------------------------------------------------
       SUBROUTINE update_np(np)
 c Weight density to eight nearest grid points.
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real np(nx,ny,nz)
 
@@ -2060,7 +2069,7 @@ c add density to boundary cells
       call periodic_scalar(np)
 
       return
-      end
+      end SUBROUTINE update_np
 c----------------------------------------------------------------------
 
 
@@ -2068,7 +2077,7 @@ c----------------------------------------------------------------------
       SUBROUTINE update_rho(mnp)
 c Weight density to eight nearest grid points.
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real mnp(nx,ny,nz)
 
@@ -2137,7 +2146,7 @@ c use for periodic boundary conditions
       call periodic_scalar(mnp)
 
       return
-      end
+      end SUBROUTINE update_rho
 c----------------------------------------------------------------------
 
 
@@ -2146,7 +2155,7 @@ c----------------------------------------------------------------------
       SUBROUTINE update_mixed()
 c Weight density to eight nearest grid points.
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real recvbuf(nx*ny*nz)
       integer count
@@ -2190,7 +2199,7 @@ c----------------------------------------------------------------------
          mixed(:,:,:) = mixed(:,:,:)/mix_cnt(:,:,:)
 
       return
-      end
+      end SUBROUTINE update_mixed
 c----------------------------------------------------------------------
 
 
@@ -2198,7 +2207,7 @@ c----------------------------------------------------------------------
 c----------------------------------------------------------------------
       SUBROUTINE update_up(vp,np,up)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real vp(Ni_max,3),
      x     np(nx,ny,nz),
@@ -2396,14 +2405,14 @@ c      up(nx,:,:,3) = 0.0
 
 
       return
-      end
+      end SUBROUTINE update_up
 c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
       SUBROUTINE face_to_center(v,vc)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real v(nx,ny,nz,3)        !vector at contravarient position
       real vc(nx,ny,nz,3)       !vector at cell center
@@ -2436,14 +2445,14 @@ c               if (km .lt. 1) then km = nz-1
       call periodic(vc)
 
       return
-      end
+      end SUBROUTINE face_to_center
 c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
       SUBROUTINE res_chex(xp,vp)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real xp(Ni_max,3)
       real vp(Ni_max,3)
@@ -2479,7 +2488,7 @@ c         endif
       enddo
       
       return
-      end
+      end SUBROUTINE res_chex
 c----------------------------------------------------------------------
 
 
@@ -2487,7 +2496,7 @@ c----------------------------------------------------------------------
       SUBROUTINE separate_np(np,flg)
 c Weight density to eight nearest grid points.
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real np(nx,ny,nz)
       integer flg(Ni_max)
@@ -2573,14 +2582,14 @@ c use for periodic boundary conditions
       call periodic_scalar(np)
 
       return
-      end
+      end SUBROUTINE separate_np
 c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
       SUBROUTINE separate_up(vp,np,flg,up)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       real vp(Ni_max,3),
      x     np(nx,ny,nz)
@@ -2717,14 +2726,14 @@ c use for periodic boundary conditions
       write(*,*) 'up_t...',up(10,1,nz/2+10,:)
 
       return
-      end
+      end SUBROUTINE separate_up
 c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
       SUBROUTINE get_temperature(xp,vp,np,temp_p)
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
       
       real xp(Ni_max,3),
      x     vp(Ni_max,3),
@@ -3004,13 +3013,13 @@ c               endif
 
 
       return
-      end
+      end SUBROUTINE get_temperature
 c----------------------------------------------------------------------
 
 c----------------------------------------------------------------------
       SUBROUTINE check_index()
 c----------------------------------------------------------------------
-      include 'incurv.h'
+      !!include 'incurv.h'
 
       do l = 1, Ni_tot
          if (ijkp(l,1) .gt. nx) then
@@ -3044,10 +3053,10 @@ c----------------------------------------------------------------------
       enddo
 
       return
-      end
+      end SUBROUTINE check_index
 c----------------------------------------------------------------------
 
-
+      end module gutsp
 
 
 
