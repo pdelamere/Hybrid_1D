@@ -169,7 +169,7 @@ c up from release
 c CDIR@ NEXTSCALAR
       do 34 k = rk+nrgrd+1,nz
          dz_grid(k) = delz +
-     x     1.0*delz*(k-(rk+nrgrd+1))/(nz-(rk+nrgrd+1)) 
+     x     0.0*delz*(k-(rk+nrgrd+1))/(nz-(rk+nrgrd+1)) 
 c     x     2.0*sin((k-(rk+nrgrd+1))*0.5*pi/(nz-(rk+nrgrd+1)))**2 
 c                                !dz_grid(k-1) + 0.01*delz 
  34   continue
@@ -182,7 +182,7 @@ c CDIR@ NEXTSCALAR
       do 37 k = 1,rk-nrgrd-1
          ind = rk-nrgrd-k
          dz_grid(ind) = delz + 
-     x     1.0*delz*(rk-nrgrd-1-ind)/(rk-nrgrd-1)
+     x     0.0*delz*(rk-nrgrd-1-ind)/(rk-nrgrd-1)
 c     x     2.0*sin((rk-nrgrd-1-ind)*(-0.5*pi)/(rk-nrgrd-1))**2 
 c                                !dz_grid(ind+1) + 0.01*delz
  37   continue
