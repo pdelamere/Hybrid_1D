@@ -698,18 +698,30 @@ c            endif
             
 c 20      continue
 
-         ijkp(l,1) = nint(xp(l,1)/dx) !particle grid location index
-         ijkp(l,2) = nint(xp(l,2)/dy)
+
+         ijkp(l,1) = floor(xp(l,1)/dx) 
+         ijkp(l,2) = floor(xp(l,2)/dy) 
          
-         k=1
-         do 30 while(xp(l,3) .gt. qz(k)) !find k on non-uniform 
-            ijkp(l,3) = k       !grid
-            k=k+1
+         k=0
  30      continue
-         k=ijkp(l,3)
-         if (xp(l,3) .gt. (qz(k)+(dz_grid(k)/2))) then
-            ijkp(l,3) = k+1
-         endif
+         k = k + 1
+         if (xp(l,3) .gt. qz(k)) go to 30 !find k on non-uniform 
+         k = k-1
+         ijkp(l,3)= k
+         
+
+c         ijkp(l,1) = nint(xp(l,1)/dx) !particle grid location index
+c         ijkp(l,2) = nint(xp(l,2)/dy)
+         
+c         k=1
+c         do 30 while(xp(l,3) .gt. qz(k)) !find k on non-uniform 
+c            ijkp(l,3) = k       !grid
+c            k=k+1
+c 30      continue
+c         k=ijkp(l,3)
+c         if (xp(l,3) .gt. (qz(k)+(dz_grid(k)/2))) then
+c            ijkp(l,3) = k+1
+c         endif
 
          vth = vth_bottom
 
@@ -796,18 +808,28 @@ c               np_t_flg(l) = 1
             mrat(l) = 1.0
 c 22         continue
 
-            ijkp(l,1) = nint(xp(l,1)/dx) !particle grid location index
-            ijkp(l,2) = nint(xp(l,2)/dy)
-            
-            k=1
-            do 50 while(xp(l,3) .gt. qz(k)) !find k on non-uniform 
-               ijkp(l,3) = k    !grid
-               k=k+1
+            ijkp(l,1) = floor(xp(l,1)/dx) 
+            ijkp(l,2) = floor(xp(l,2)/dy) 
+         
+            k=0
  50         continue
-            k=ijkp(l,3)
-            if (xp(l,3) .gt. (qz(k)+(dz_grid(k)/2))) then
-               ijkp(l,3) = k+1
-            endif
+            k = k + 1
+            if (xp(l,3) .gt. qz(k)) go to 50 !find k on non-uniform 
+            k = k-1
+            ijkp(l,3)= k
+
+c            ijkp(l,1) = nint(xp(l,1)/dx) !particle grid location index
+c            ijkp(l,2) = nint(xp(l,2)/dy)
+            
+c            k=1
+c            do 50 while(xp(l,3) .gt. qz(k)) !find k on non-uniform 
+c               ijkp(l,3) = k    !grid
+c               k=k+1
+c 50         continue
+c            k=ijkp(l,3)
+c            if (xp(l,3) .gt. (qz(k)+(dz_grid(k)/2))) then
+c               ijkp(l,3) = k+1
+c            endif
             
             vth = vth_top
             
@@ -891,18 +913,28 @@ c               np_t_flg(l) = 1
             mrat(l) = 1.0
 c 22         continue
 
-            ijkp(l,1) = nint(xp(l,1)/dx) !particle grid location index
-            ijkp(l,2) = nint(xp(l,2)/dy)
+            ijkp(l,1) = floor(xp(l,1)/dx) 
+            ijkp(l,2) = floor(xp(l,2)/dy) 
             
-            k=1
-            do 70 while(xp(l,3) .gt. qz(k)) !find k on non-uniform 
-               ijkp(l,3) = k    !grid
-               k=k+1
+            k=0
  70         continue
-            k=ijkp(l,3)
-            if (xp(l,3) .gt. (qz(k)+(dz_grid(k)/2))) then
-               ijkp(l,3) = k+1
-            endif
+            k = k + 1
+            if (xp(l,3) .gt. qz(k)) go to 70 !find k on non-uniform 
+            k = k-1
+            ijkp(l,3)= k
+
+c            ijkp(l,1) = nint(xp(l,1)/dx) !particle grid location index
+c            ijkp(l,2) = nint(xp(l,2)/dy)
+            
+c            k=1
+c            do 70 while(xp(l,3) .gt. qz(k)) !find k on non-uniform 
+c               ijkp(l,3) = k    !grid
+c               k=k+1
+c 70         continue
+c            k=ijkp(l,3)
+c            if (xp(l,3) .gt. (qz(k)+(dz_grid(k)/2))) then
+c               ijkp(l,3) = k+1
+c            endif
             
             vth = vth_top
             

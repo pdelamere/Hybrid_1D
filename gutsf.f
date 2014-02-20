@@ -1156,15 +1156,15 @@ c      call fix_tangential_E(E)
             do 10 i=2,nx-1
                do 10 m=1,3
 
-                  b1p2(i,j,k,m)=lww1*(b12(i+1,j,k,m)+
-     x                 b12(i-1,j,k,m)+
-     x                 b12(i,j+1,k,m)+b12(i,j-1,k,m)+
-     x                 b12(i,j,k+1,m)+b12(i,j,k-1,m))+
-     x                 lww2*b12(i,j,k,m) -
-     x                 2.0*dtsub*curl_E(i,j,k,m)
+c                  b1p2(i,j,k,m)=lww1*(b12(i+1,j,k,m)+
+c     x                 b12(i-1,j,k,m)+
+c     x                 b12(i,j+1,k,m)+b12(i,j-1,k,m)+
+c     x                 b12(i,j,k+1,m)+b12(i,j,k-1,m))+
+c     x                 lww2*b12(i,j,k,m) -
+c     x                 2.0*dtsub*curl_E(i,j,k,m)
 
-c                  b1p2(i,j,k,m) = b12(i,j,k,m) - 
-c     x                            2.0*dtsub*curl_E(i,j,k,m)
+                  b1p2(i,j,k,m) = b12(i,j,k,m) - 
+     x                            2.0*dtsub*curl_E(i,j,k,m)
  10               continue
 
 c      call boundaries(b1p2)
@@ -1340,14 +1340,14 @@ c      write(*,*) 'E cb...',E(23,8,14,1),E(23,8,14,2),E(23,8,14,3)
             do 10 i=2,nx-1
                do 10 m=1,3
 
-                  b1p2(i,j,k,m)=lww1*(b1(i+1,j,k,m)+b1(i-1,j,k,m)+
-     x                 b1(i,j+1,k,m)+b1(i,j-1,k,m)+
-     x                 b1(i,j,k+1,m)+b1(i,j,k-1,m))+
-     x                 lww2*b1(i,j,k,m) -
-     x                 dtsub*curl_E(i,j,k,m)
+c                  b1p2(i,j,k,m)=lww1*(b1(i+1,j,k,m)+b1(i-1,j,k,m)+
+c     x                 b1(i,j+1,k,m)+b1(i,j-1,k,m)+
+c     x                 b1(i,j,k+1,m)+b1(i,j,k-1,m))+
+c     x                 lww2*b1(i,j,k,m) -
+c     x                 dtsub*curl_E(i,j,k,m)
 
-c                  b1p2(i,j,k,m) = b1(i,j,k,m) - 
-c     x                            dtsub*curl_E(i,j,k,m)
+                  b1p2(i,j,k,m) = b1(i,j,k,m) - 
+     x                            dtsub*curl_E(i,j,k,m)
  10               continue
 
 c      call boundaries(b1p2)

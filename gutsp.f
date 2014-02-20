@@ -60,7 +60,7 @@ c      write(*,*) 'removing ion...',ion_l
             vp(l,m) = vp(l+1,m)
             vp1(l,m) = vp1(l+1,m)
             ijkp(l,m) = ijkp(l+1,m)
-            wquad(l,m) = wquad(l+1,m)
+c            wquad(l,m) = wquad(l+1,m)
  10      continue
 
       do 20 m=1,8
@@ -225,6 +225,8 @@ c                  xp(l,3) = cz + 5.0*dz_cell(rk)*(0.5-pad_ranf())
 c                  endif
 
 c 40         continue
+
+
 
             ijkp(l,1) = nint(xp(l,1)/dx) !particle grid location index
             ijkp(l,2) = nint(xp(l,2)/dy)
@@ -812,9 +814,9 @@ c      call face_to_center(gradP,gradPc)
 
       do 10 l=1,Ni_tot
 
-         i=ijkp(l,1)+wquad(l,1)
-         j=ijkp(l,2)+wquad(l,2)
-         k=ijkp(l,3)+wquad(l,3)
+         i=ijkp(l,1)!+wquad(l,1)
+         j=ijkp(l,2)!+wquad(l,2)
+         k=ijkp(l,3)!+wquad(l,3)
 
          ip = i+1
          jp = j+1
@@ -894,7 +896,6 @@ c                     + etar(i,j,k,m)*aj3(m)
             Ep(l,m) = Ep(l,m)*mrat(l) !O_to_Ba
  30         continue
 
-
  10      continue
 
       return
@@ -969,9 +970,9 @@ c 20   continue
    
       do 30 l=1,Ni_tot 
 
-         i = ijkp(l,1)+wquad(l,1)
-         j = ijkp(l,2)+wquad(l,2)
-         k = ijkp(l,3)+wquad(l,3)
+         i = ijkp(l,1)!+wquad(l,1)
+         j = ijkp(l,2)!+wquad(l,2)
+         k = ijkp(l,3)!+wquad(l,3)
    
          ip = i+1
          jp = j+1
@@ -1097,76 +1098,101 @@ c----------------------------------------------------------------------
       do 10 l=1,Ni_tot                   !make 1/2 time step advance
 
          xp(l,1) = xp(l,1) + dth*vp(l,1)
-         ijkp(l,1) = nint(xp(l,1)/dx) 
+c         ijkp(l,1) = nint(xp(l,1)/dx) 
 
          xp(l,2) = xp(l,2) + dth*vp(l,2)
-         ijkp(l,2) = nint(xp(l,2)/dy) 
+c         ijkp(l,2) = nint(xp(l,2)/dy) 
 
          xp(l,3) = xp(l,3) + dth*vp(l,3)
-         k=1
-         do 15 while(xp(l,3) .gt. qz(k))  !find k on non-uniform 
-            ijkp(l,3) = k                 !grid
-            k=k+1
- 15      continue
-         k=ijkp(l,3)
-         if (xp(l,3) .gt. (qz(k)+(dz_grid(k)/2))) then
-            ijkp(l,3) = k+1
+c         k=1
+c         do 15 while(xp(l,3) .gt. qz(k))  !find k on non-uniform 
+c            ijkp(l,3) = k                 !grid
+c            k=k+1
+c 15      continue
+c         k=ijkp(l,3)
+c         if (xp(l,3) .gt. (qz(k)+(dz_grid(k)/2))) then
+c            ijkp(l,3) = k+1
+c         endif
+
+         if (xp(l,1) .gt. qx(nx-1)) then
+           xp(l,1) = qx(1) + ( xp(l,1) - qx(nx-1) )
+         else if (xp(l,1) .le. qx(1)) then
+           xp(l,1) = qx(nx-1) - (qx(1) - xp(l,1))
          endif
+c         ijkp(l,1) = nint(xp(l,1)/dx)
+
+         if (xp(l,2) .ge. qy(ny-1)) then
+           xp(l,2) = qy(1) + ( xp(l,2) - qy(ny-1) )
+         else if (xp(l,2) .le. qy(1)) then
+           xp(l,2) = qy(ny-1) - (qy(1) - xp(l,2))
+         endif
+c         ijkp(l,2) = nint(xp(l,2)/dy)
+
+         if (xp(l,3) .ge. qz(nz-1)) then
+           xp(l,3) = qz(1) + ( xp(l,3) - qz(nz-1) )
+c           ijkp(l,3) = nint(xp(l,3)/delz)
+         else if (xp(l,3) .le. qz(1)) then
+           xp(l,3) = qz(nz-1) - (qz(1) - xp(l,3))
+c           ijkp(l,3) = nint(xp(l,3)/delz)
+         endif
+
+
+
  10      continue
 
 
-      where (xp(:,1) .gt. qx(nx-1))
-c         ijkp(:,1) = 1
-c         wquad(:,1) = 0
-         xp(:,1) = qx(1) + ( xp(:,1) - qx(nx-1) )
-         ijkp(:,1) = nint(xp(:,1)/dx)
-      endwhere
+c      where (xp(:,1) .gt. qx(nx-1))
+cc         ijkp(:,1) = 1
+cc         wquad(:,1) = 0
+c         xp(:,1) = qx(1) + ( xp(:,1) - qx(nx-1) )
+cc         ijkp(:,1) = nint(xp(:,1)/dx)
+c      endwhere
 
 
-      where (xp(:,1) .le. qx(1)) 
-c         ijkp(:,1) = nx-1
-c         wquad(:,1) = -1
-         xp(:,1) = qx(nx-1) - (qx(1) - xp(:,1))
-         ijkp(:,1) = nint(xp(:,1)/dx)
-c         xp(:,2) = pad_ranf()*qy(ny)
-c         ijkp(:,2) = ninit(xp(:,2)/dy
-c         vp(:,1) = -vsw
-c         vp(:,2) = 0.0
-c         vp(:,3) = 0.0
-      endwhere
+c      where (xp(:,1) .le. qx(1)) 
+cc         ijkp(:,1) = nx-1
+cc         wquad(:,1) = -1
+c         xp(:,1) = qx(nx-1) - (qx(1) - xp(:,1))
+cc         ijkp(:,1) = nint(xp(:,1)/dx)
+cc         xp(:,2) = pad_ranf()*qy(ny)
+cc         ijkp(:,2) = ninit(xp(:,2)/dy
+cc         vp(:,1) = -vsw
+cc         vp(:,2) = 0.0
+cc         vp(:,3) = 0.0
+c      endwhere
 
-      where (xp(:,2) .ge. qy(ny-1))
-c         ijkp(:,2) = 1
-c         wquad(:,2) = 0
-         xp(:,2) = qy(1) + ( xp(:,2) - qy(ny-1) )
-         ijkp(:,2) = nint(xp(:,2)/dy)
-      endwhere
+c      where (xp(:,2) .ge. qy(ny-1))
+cc         ijkp(:,2) = 1
+cc         wquad(:,2) = 0
+c         xp(:,2) = qy(1) + ( xp(:,2) - qy(ny-1) )
+cc         ijkp(:,2) = nint(xp(:,2)/dy)
+c      endwhere
 
-      where (xp(:,2) .le. qy(1)) 
-c         ijkp(:,2) = ny-1
-c         wquad(:,2) = -1
-         xp(:,2) = qy(ny-1) - (qy(1) - xp(:,2))
-         ijkp(:,2) = nint(xp(:,2)/dy)
-      endwhere
+c      where (xp(:,2) .le. qy(1)) 
+cc         ijkp(:,2) = ny-1
+cc         wquad(:,2) = -1
+c         xp(:,2) = qy(ny-1) - (qy(1) - xp(:,2))
+cc         ijkp(:,2) = nint(xp(:,2)/dy)
+c      endwhere
 
 
-c periodic boundary conditions
-      where (xp(:,3) .le. qz(1)) 
-c         ijkp(:,3) = nz
-c         wquad(:,3) = -1.0
-         xp(:,3) = qz(nz-1) - (qz(1) - xp(:,3))
-         ijkp(:,3) = nint(xp(:,3)/delz)
-c         vp(:,1) = -vp(:,1)
-      endwhere
+cc periodic boundary conditions
+c      where (xp(:,3) .le. qz(1)) 
+cc         ijkp(:,3) = nz
+cc         wquad(:,3) = -1.0
+c         xp(:,3) = qz(nz-1) - (qz(1) - xp(:,3))
+cc         ijkp(:,3) = nint(xp(:,3)/delz)
+cc         vp(:,1) = -vp(:,1)
+c      endwhere
 
-c periodic boundary conditions
-      where (xp(:,3) .ge. qz(nz-1))
-c         ijkp(:,3) = 1
-c         wquad(:,3) = 0.0
-         xp(:,3) = qz(1) + (xp(:,3) - qz(nz-1) )
-         ijkp(:,3) = nint(xp(:,3)/delz)
-c         vp(:,1) = -vp(:,1)
-      endwhere
+cc periodic boundary conditions
+c      where (xp(:,3) .ge. qz(nz-1))
+cc         ijkp(:,3) = 1
+cc         wquad(:,3) = 0.0
+c         xp(:,3) = qz(1) + (xp(:,3) - qz(nz-1) )
+cc         ijkp(:,3) = nint(xp(:,3)/delz)
+cc         vp(:,1) = -vp(:,1)
+c      endwhere
 
 
       return
@@ -1701,7 +1727,7 @@ c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
-      SUBROUTINE get_interp_weights(xp)
+      SUBROUTINE get_interp_weights_2(xp)
 c Weights are used for trilinear interpolation to/from main cell
 c centers to particle positions.  For each particle there are 8
 c grid points associated with the interpolation.  These 8 points
@@ -1774,9 +1800,9 @@ c 111111111111111111111111111111111111111111111111111111111111111111111
 
       if ((xp(l,1) .le. qx(i)) .and. (xp(l,2) .le. qy(j)) .and. 
      x    (xp(l,3) .le. qz(k))) then
-         wquad(l,1) = -1
-         wquad(l,2) = -1
-         wquad(l,3) = -1
+c         wquad(l,1) = -1
+c         wquad(l,2) = -1
+c         wquad(l,3) = -1
          vol = dx*dy*(qz(k)-qz(k-1))
          x1=abs(xp(l,1)-qx(i-1))
          x2=abs(xp(l,1)-qx(i))
@@ -1799,9 +1825,9 @@ c 222222222222222222222222222222222222222222222222222222222222222222222
 
       if ((xp(l,1) .gt. qx(i)) .and. (xp(l,2) .le. qy(j)) .and. 
      x    (xp(l,3) .le. qz(k))) then
-         wquad(l,1) = 0
-         wquad(l,2) = -1
-         wquad(l,3) = -1
+c         wquad(l,1) = 0
+c         wquad(l,2) = -1
+c         wquad(l,3) = -1
          vol = dx*dy*(qz(k)-qz(k-1))
          x1=abs(xp(l,1)-qx(i))
          x2=abs(xp(l,1)-qx(i+1))
@@ -1824,9 +1850,9 @@ c 333333333333333333333333333333333333333333333333333333333333333333333
 
       if ((xp(l,1) .le. qx(i)) .and. (xp(l,2) .le. qy(j)) .and. 
      x    (xp(l,3) .gt. qz(k))) then
-         wquad(l,1) = -1
-         wquad(l,2) = -1
-         wquad(l,3) = 0
+c         wquad(l,1) = -1
+c         wquad(l,2) = -1
+c         wquad(l,3) = 0
          vol = dx*dy*(qz(k+1)-qz(k))
          x1=abs(xp(l,1)-qx(i-1))
          x2=abs(xp(l,1)-qx(i))
@@ -1849,9 +1875,9 @@ c 444444444444444444444444444444444444444444444444444444444444444444444
 
       if ((xp(l,1) .gt. qx(i)) .and. (xp(l,2) .le. qy(j)) .and. 
      x    (xp(l,3) .gt. qz(k))) then
-         wquad(l,1) = 0
-         wquad(l,2) = -1
-         wquad(l,3) = 0
+c         wquad(l,1) = 0
+c         wquad(l,2) = -1
+c         wquad(l,3) = 0
          vol = dx*dy*(qz(k+1)-qz(k))
          x1=abs(xp(l,1)-qx(i))
          x2=abs(xp(l,1)-qx(i+1))
@@ -1874,9 +1900,9 @@ c 555555555555555555555555555555555555555555555555555555555555555555555
 
       if ((xp(l,1) .le. qx(i)) .and. (xp(l,2) .gt. qy(j)) .and. 
      x    (xp(l,3) .le. qz(k))) then
-         wquad(l,1) = -1
-         wquad(l,2) = 0
-         wquad(l,3) = -1
+c         wquad(l,1) = -1
+c         wquad(l,2) = 0
+c         wquad(l,3) = -1
          vol = dx*dy*(qz(k)-qz(k-1))
          x1=abs(xp(l,1)-qx(i-1))
          x2=abs(xp(l,1)-qx(i))
@@ -1899,9 +1925,9 @@ c 666666666666666666666666666666666666666666666666666666666666666666666
 
       if ((xp(l,1) .gt. qx(i)) .and. (xp(l,2) .gt. qy(j)) .and. 
      x    (xp(l,3) .le. qz(k))) then
-         wquad(l,1) = 0
-         wquad(l,2) = 0
-         wquad(l,3) = -1
+c         wquad(l,1) = 0
+c         wquad(l,2) = 0
+c         wquad(l,3) = -1
          vol = dx*dy*(qz(k)-qz(k-1))
          x1=abs(xp(l,1)-qx(i))
          x2=abs(xp(l,1)-qx(i+1))
@@ -1924,9 +1950,9 @@ c 777777777777777777777777777777777777777777777777777777777777777777777
 
       if ((xp(l,1) .le. qx(i)) .and. (xp(l,2) .gt. qy(j)) .and. 
      x    (xp(l,3) .gt. qz(k))) then
-         wquad(l,1) = -1
-         wquad(l,2) = 0
-         wquad(l,3) = 0
+c         wquad(l,1) = -1
+c         wquad(l,2) = 0
+c         wquad(l,3) = 0
          vol = dx*dy*(qz(k+1)-qz(k))
          x1=abs(xp(l,1)-qx(i-1))
          x2=abs(xp(l,1)-qx(i))
@@ -1949,9 +1975,9 @@ c 888888888888888888888888888888888888888888888888888888888888888888888
 
       if ((xp(l,1) .gt. qx(i)) .and. (xp(l,2) .gt. qy(j)) .and. 
      x    (xp(l,3) .gt. qz(k))) then
-         wquad(l,1) = 0
-         wquad(l,2) = 0
-         wquad(l,3) = 0
+c         wquad(l,1) = 0
+c         wquad(l,2) = 0
+c         wquad(l,3) = 0
          vol = dx*dy*(qz(k+1)-qz(k))
          x1=abs(xp(l,1)-qx(i))
          x2=abs(xp(l,1)-qx(i+1))
@@ -1974,8 +2000,62 @@ c 888888888888888888888888888888888888888888888888888888888888888888888
 
 
       return
+      end SUBROUTINE get_interp_weights_2
+c----------------------------------------------------------------------
+
+
+
+c----------------------------------------------------------------------
+      SUBROUTINE get_interp_weights(xp)
+c Weights are used for trilinear interpolation to/from main cell
+c centers to particle positions.  For each particle there are 8
+c grid points associated with the interpolation.  These 8 points
+c are determined by the location of the particle within the main
+c cell.  There are 8 sets of 8 grid points for each cell.
+c----------------------------------------------------------------------
+      !!include 'incurv.h'
+
+      real xp(Ni_max,3)
+      real x1,x2,y1,y2,z1,z2,vol
+
+
+      do 10 l=1,Ni_tot
+
+         i = floor(xp(l,1)/dx) 
+         ijkp(l,1) = i
+         j = floor(xp(l,2)/dy) 
+         ijkp(l,2) = j
+
+         k=0
+ 15      continue
+         k = k + 1
+         if (xp(l,3) .gt. qz(k)) go to 15  !find k on non-uniform 
+         k = k-1
+         ijkp(l,3)= k
+
+         vol = dx*dy*(qz(k+1)-qz(k))
+         x1=abs(xp(l,1)-qx(i))
+         x2=abs(xp(l,1)-qx(i+1))
+         y1=abs(xp(l,2)-qy(j))
+         y2=abs(xp(l,2)-qy(j+1))
+         z1=abs(xp(l,3)-qz(k))
+         z2=abs(xp(l,3)-qz(k+1))
+         wght(l,1) = x2*y2*z2/vol
+         wght(l,2) = x1*y2*z2/vol
+         wght(l,3) = x2*y2*z1/vol
+         wght(l,4) = x1*y2*z1/vol
+         wght(l,5) = x2*y1*z2/vol
+         wght(l,6) = x1*y1*z2/vol
+         wght(l,7) = x2*y1*z1/vol
+         wght(l,8) = x1*y1*z1/vol
+
+
+ 10   continue
+
+      return
       end SUBROUTINE get_interp_weights
 c----------------------------------------------------------------------
+
 
 
 c----------------------------------------------------------------------
@@ -2001,9 +2081,9 @@ c      real sumnp,vol
 
       do 20 l=1,Ni_tot
 
-         i=ijkp(l,1)+wquad(l,1)
-         j=ijkp(l,2)+wquad(l,2)
-         k=ijkp(l,3)+wquad(l,3)
+         i=ijkp(l,1)!+wquad(l,1)
+         j=ijkp(l,2)!+wquad(l,2)
+         k=ijkp(l,3)!+wquad(l,3)
 
 c         if (i .lt. 1) i = nx-1
 c         if (j .lt. 1) i = ny-1
@@ -2096,9 +2176,9 @@ c      real sumnp,vol
 
       do 20 l=1,Ni_tot
 
-         i=ijkp(l,1)+wquad(l,1)
-         j=ijkp(l,2)+wquad(l,2)
-         k=ijkp(l,3)+wquad(l,3)
+         i=ijkp(l,1)!+wquad(l,1)
+         j=ijkp(l,2)!+wquad(l,2)
+         k=ijkp(l,3)!+wquad(l,3)
 
 c         if (i .lt. 1) i = nx-1
 c         if (j .lt. 1) i = ny-1
@@ -2234,9 +2314,9 @@ c      endwhere
          
       do 20 l=1,Ni_tot
 
-         i=ijkp(l,1)+wquad(l,1)
-         j=ijkp(l,2)+wquad(l,2)
-         k=ijkp(l,3)+wquad(l,3)
+         i=ijkp(l,1)!+wquad(l,1)
+         j=ijkp(l,2)!+wquad(l,2)
+         k=ijkp(l,3)!+wquad(l,3)
 
          ip = i+1
          jp = j+1
@@ -2516,9 +2596,9 @@ c      real sumnp,vol
 
       do 20 l=1,Ni_tot
 
-         i=ijkp(l,1)+wquad(l,1)
-         j=ijkp(l,2)+wquad(l,2)
-         k=ijkp(l,3)+wquad(l,3)
+         i=ijkp(l,1)!+wquad(l,1)
+         j=ijkp(l,2)!+wquad(l,2)
+         k=ijkp(l,3)!+wquad(l,3)
 
 c         if (i .lt. 1) i = nx-1
 c         if (j .lt. 1) i = ny-1
@@ -2619,9 +2699,9 @@ c      endwhere
          
       do 20 l=1,Ni_tot
 
-         i=ijkp(l,1)+wquad(l,1)
-         j=ijkp(l,2)+wquad(l,2)
-         k=ijkp(l,3)+wquad(l,3)
+         i=ijkp(l,1)!+wquad(l,1)
+         j=ijkp(l,2)!+wquad(l,2)
+         k=ijkp(l,3)!+wquad(l,3)
 
          ip = i+1
          jp = j+1
@@ -2775,9 +2855,9 @@ c      enddo
 
       do 20 l=1,Ni_tot
 
-         i=ijkp(l,1)+wquad(l,1)
-         j=ijkp(l,2)+wquad(l,2)
-         k=ijkp(l,3)+wquad(l,3)
+         i=ijkp(l,1)!+wquad(l,1)
+         j=ijkp(l,2)!+wquad(l,2)
+         k=ijkp(l,3)!+wquad(l,3)
 
          ip = i+1
          jp = j+1
@@ -2885,9 +2965,9 @@ c use for periodic boundary conditions
 
       do 40 l=1,Ni_tot
 
-         i=ijkp(l,1)+wquad(l,1)
-         j=ijkp(l,2)+wquad(l,2)
-         k=ijkp(l,3)+wquad(l,3)
+         i=ijkp(l,1)!+wquad(l,1)
+         j=ijkp(l,2)!+wquad(l,2)
+         k=ijkp(l,3)!+wquad(l,3)
 
          ip = i+1
          jp = j+1

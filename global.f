@@ -63,8 +63,12 @@ c particle update and fluid update
 
 c Weight variables for trilinear interpolation
 
-      real wght(Ni_max,8), wquad(Ni_max,3)
-      common /weights/ wght, wquad
+      real wght(Ni_max,8)
+      common /weights/ wght
+
+c      real wght(Ni_max,8), wquad(Ni_max,3)
+c      common /weights/ wght, wquad
+
 
 c variable for anomlous resistivity
 
@@ -76,7 +80,6 @@ c variable for particle scale
 
       real beta, dNi, dNi_sw
       common /scale/ beta, dNi, dNi_sw
-
 
 c mass array for multi-ion species
       real mrat,m_arr

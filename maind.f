@@ -457,6 +457,7 @@ c         write(*,*) 'Ni_tot...',Ni_tot,dNi,my_rank !/beta
 c         write(*,*) ' '
 
          call get_interp_weights(xp)
+c         call get_interp_weights_2(xp)
          call update_np(np)             !np at n+1/2
          call update_up(vp,np,up)       !up at n+1/2
 
