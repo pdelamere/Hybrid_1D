@@ -2,6 +2,7 @@
 
       USE global
       USE boundary
+      USE grid_interp
       
       contains
 
@@ -33,6 +34,8 @@ c                  uf2(i,j,k,m) = uf(i,j,k,m)
       return
       end SUBROUTINE f_update_tlev
 c----------------------------------------------------------------------
+
+
 
 c----------------------------------------------------------------------
       SUBROUTINE crossf(aa,bbmf,cc)
@@ -128,6 +131,77 @@ c about the grid points.
       return
       end SUBROUTINE crossf
 c----------------------------------------------------------------------
+
+
+
+c----------------------------------------------------------------------
+      SUBROUTINE crossf2(aa,btc,cc)
+c The cross product is formed at the main cell center.  aa and btc must
+c be given already extrapolated to the main cell center.
+c----------------------------------------------------------------------
+      !include 'incurv.h'
+
+      real aa(nx,ny,nz,3)        !main cell contravarient vector 
+      real btc(nx,ny,nz,3)      !main cell contravarient vector
+      real cc(nx,ny,nz,3)        !cross product result, main cell
+                                 !contravarient (cell face)
+
+      real ax,ay,az,bx,by,bz    !dummy vars
+
+
+      call periodic(aa)
+      call periodic(btc)
+
+      do 10 k=2,nz-1      
+         do 10 j=2,ny-1
+            do 10 i=2,nx-1
+
+               im = i-1    
+               jm = j-1    
+               km = k-1
+
+               ax = aa(i,j,k,1) 
+               bx = btc(i,j,k,1)
+
+               ay = aa(i,j,k,2)
+               by = btc(i,j,k,2)
+
+               az = aa(i,j,k,3)
+               bz = btc(i,j,k,3)
+
+               ct(i,j,k,1) = ay*bz - az*by
+               ct(i,j,k,2) = az*bx - ax*bz
+               ct(i,j,k,3) = ax*by - ay*bx
+
+ 10            continue
+
+       call periodic(ct)
+
+c extrapolate back to main cell contravarient positions.
+c ...just average across cells since cell edges are centered
+c about the grid points.
+      
+      do 60 k=2,nz-1
+         do 60 j=2,ny-1
+            do 60 i=2,nx-1
+
+               ip = i+1
+               jp = j+1
+               kp = k+1
+
+               cc(i,j,k,1) = 0.5*(ct(i,j,k,1) + ct(ip,j,k,1))
+               cc(i,j,k,2) = 0.5*(ct(i,j,k,2) + ct(i,jp,k,2))
+               cc(i,j,k,3) = 0.5*(ct(i,j,k,3) + ct(i,j,kp,3))
+
+ 60            continue
+
+      call periodic(cc)
+
+
+      return
+      end SUBROUTINE crossf2
+c----------------------------------------------------------------------
+
 
 
 c----------------------------------------------------------------------
@@ -1007,7 +1081,7 @@ cc----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
-      SUBROUTINE get_E(E,b0,bt,btmf,aj,up,np,nu)
+      SUBROUTINE get_E(E,b0,bt,btc,aj,up,np,nu)
 c E must be at time level m. We have uf at levels m-1/2 and m+1/2, so
 c the average value is used for uf in the calculation of ui.
 c----------------------------------------------------------------------
@@ -1017,7 +1091,7 @@ CVD$R VECTOR
       real E(nx,ny,nz,3),
      x     b0(nx,ny,nz,3),
      x     bt(nx,ny,nz,3),
-     x     btmf(nx,ny,nz,3),
+     x     btc(nx,ny,nz,3),
      x     aj(nx,ny,nz,3),
      x     up(nx,ny,nz,3),
 c     x     uf(nx,ny,nz,3),
@@ -1033,6 +1107,8 @@ c     x     gradP(nx,ny,nz,3)
 
 c      real a(nx,ny,nz,3), 
 c     x     c(nx,ny,nz,3)  !dummy vars for doing cross product
+
+      real aa(nx,ny,nz,3)
 
       call periodic_scalar(np)
 c      call periodic_scalar(nf)
@@ -1077,9 +1153,12 @@ c                  a(i,j,k,m) = - fnp(m)*up(i,j,k,m) -
 c     x                         fnf(m)*0.5*(uf2(i,j,k,m)+uf(i,j,k,m))
  10               continue
 
-      call crossf(a,btmf,c)
+                  
+      call face_to_center(a,aa)
+c      call edge_to_center(bt,btc)
 
-
+c      call crossf(a,btmf,c)
+      call crossf2(aa,btc,c)
 
                
       do 20 k=2,nz-1      
@@ -1119,7 +1198,7 @@ c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
-      SUBROUTINE predict_B(b0,b1,b12,b1p2,bt,btmf,E,aj,up,np,nu)
+      SUBROUTINE predict_B(b0,b1,b12,b1p2,bt,btc,E,aj,up,np,nu)
 c Predictor step in magnetic field update.
 c----------------------------------------------------------------------
 CVD$R VECTOR
@@ -1130,7 +1209,7 @@ CVD$R VECTOR
      x     b12(nx,ny,nz,3),
      x     b1p2(nx,ny,nz,3),
      x     bt(nx,ny,nz,3),
-     x     btmf(nx,ny,nz,3),
+     x     btc(nx,ny,nz,3),
      x     E(nx,ny,nz,3),
      x     aj(nx,ny,nz,3),
      x     up(nx,ny,nz,3),
@@ -1143,7 +1222,7 @@ c     x     gradP(nx,ny,nz,3)
 
       real curl_E(nx,ny,nz,3)   !curl of E
 
-      call get_E(E,b0,bt,btmf,aj,up,np,nu)  !E at time level m 
+      call get_E(E,b0,bt,btc,aj,up,np,nu)  !E at time level m 
 
 
       call curlE(E,curl_E)
@@ -1203,7 +1282,10 @@ c     x     bdp(nx,ny,nz,3)
 
       real b1p1(nx,ny,nz,3)   !b1 at time level m + 1/2
       real btp1(nx,ny,nz,3)   !bt at time level m + 1/2
-      real btp1mf(nx,ny,nz,3) !btp1 at contravarient position
+c      real btp1mf(nx,ny,nz,3) !btp1 at contravarient position
+      real btc(nx,ny,nz,3) !btp1 at contravarient position
+      real aa(nx,ny,nz,3) 
+    
       real ntot(3)            !total density np + nf
       real fnp(3),fnf(3)      !fraction np and nf of n
       real npave(3)
@@ -1268,10 +1350,12 @@ c                  a(i,j,k,m) = - fnp(m)*up(i,j,k,m) -
 c     x                           fnf(m)*uf(i,j,k,m)
  10               continue
 
-      call cov_to_contra(btp1,btp1mf)
+c      call cov_to_contra(btp1,btp1mf)
+      call edge_to_center(btp1,btc)
+      call face_to_center(a,aa)
 
-      call crossf(a,btp1mf,c)
-
+c      call crossf(a,btp1mf,c)
+      call crossf2(aa,btc,c)
                
       do 20 k=2,nz-1       
          do 20 j=2,ny-1     

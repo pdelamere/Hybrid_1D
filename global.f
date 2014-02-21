@@ -19,8 +19,9 @@ c raw grid coordinate data
       integer ri, rj, rk    !release coordinates
       real dz_grid(nz)      !dz for grid, variable in z direction
       real dz_cell(nz)      !dz for cell, variable in z direction 
+      real zrat(nz)
 
-      common /coords/ qx,qy,qz,lambda,ri,rj,rk,dz_grid,dz_cell
+      common /coords/ qx,qy,qz,lambda,ri,rj,rk,dz_grid,dz_cell,zrat
 
 c Total number of ions produced at a given time during the simulation
       integer*4 Ni_tot, Nn_tot, Ni_tot_sys, Ni_tot_sw       

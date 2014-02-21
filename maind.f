@@ -14,6 +14,7 @@ c----------------------------------------------------------------------
       USE gutsp
       USE gutsf
       USE part_init
+      USE grid_interp
 c      include 'dimensions.h'
 c      include 'incurv.h'
 
@@ -468,8 +469,9 @@ c         call get_interp_weights_2(xp)
      x                    EeP,nu,up,np)
 
          call curlB(bt,np,aj)
-         call cov_to_contra(bt,btmf)
-         call face_to_center(btmf,btc)       !interp bt to cell center
+c         call cov_to_contra(bt,btmf)
+c         call face_to_center(btmf,btc)       !interp bt to cell center
+         call edge_to_center(bt,btc)
          call extrapol_up(up,vp,vp1,np)
          call get_Ep(Ep,aj,np,up,btc,nu)
          call get_vplus_vminus(Ep,btc,vp,vplus,vminus)
@@ -496,7 +498,7 @@ c**********************************************************************
 
          dtsub = dtsub_init
          ntf = ntsub
-         mindt = dtsub_init/50.
+c         mindt = dtsub_init/50.
 c check time step
 c         write(*,*) 'checking time step...',ntf
 c         do i = 1,nx
@@ -532,7 +534,8 @@ c         enddo
 c         write(*,*) 'subcycle step...',n,ntf
 
          !convert main cell covarient bt to main cell contravarient
-         call cov_to_contra(bt,btmf) 
+c         call cov_to_contra(bt,btmf) 
+         call edge_to_center(bt,btc)
          call curlB(bt,np,aj)     
 
          !update fluid velocity, uf 
@@ -560,7 +563,7 @@ c         call trans_pf_LaxWend2(pf,pf1,ufp1)
 c         call predict_B(b1,b12,b1p2,bt,btmf,E,aj,up,uf,uf2,np,nf,nu,
 c     x                  gradP) 
 
-         call predict_B(b0,b1,b12,b1p2,bt,btmf,E,aj,up,np,nu) 
+         call predict_B(b0,b1,b12,b1p2,bt,btc,E,aj,up,np,nu) 
 
 c         call correct_nf(nf,nf1,ufp1)
 
@@ -598,12 +601,12 @@ c     x                        (pup(1)+puf(1)+peb(1))/input_p(1),
 c     x                        (pup(2)+puf(2)+peb(2))/input_p(2),
 c     x                        (pup(3)+puf(3)+peb(3))/input_p(3)
 
-         call get_np3(np,np3)
-         call update_mixed
 
-         if (my_rank .eq.0) then
-            write(342) xp(1:100,:)
-         endif
+
+
+c         if (my_rank .eq.0) then
+c            write(342) xp(1:100,:)
+c         endif
             
 c         write(175) b1(nx/2,ny/2,nz/2,:)
 
@@ -619,8 +622,8 @@ c----------------------------------------------------------------------
      x           EeP,input_chex,input_bill
             write(190) m
             write(190) pup, puf, peb, input_p
-            write(320) np(ri-20,rj,rk),np(ri-40,rj,rk),
-     x                 np(ri-40,rj,rk+50),np(ri+5,rj,rk)
+c            write(320) np(ri-20,rj,rk),np(ri-40,rj,rk),
+c     x                 np(ri-40,rj,rk+50),np(ri+5,rj,rk)
          endif
 
          ainput_E = input_E
@@ -633,8 +636,10 @@ c            call separate_np(np_t,np_t_flg)
 c            call separate_np(np_b,np_b_flg)
 c            call separate_up(vp,np,np_t_flg,up_t)
 c            call separate_up(vp,np,np_b_flg,up_b)
+            call get_np3(np,np3)
             call get_temperature(xp,vp,np,temp_p)
             call update_rho(mnp)
+            call update_mixed
             if (my_rank .eq. 0) then
 
 c     if (m .ge. 275) then

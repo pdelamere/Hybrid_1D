@@ -169,7 +169,7 @@ c up from release
 c CDIR@ NEXTSCALAR
       do 34 k = rk+nrgrd+1,nz
          dz_grid(k) = delz +
-     x     0.0*delz*(k-(rk+nrgrd+1))/(nz-(rk+nrgrd+1)) 
+     x     1.0*delz*(k-(rk+nrgrd+1))/(nz-(rk+nrgrd+1)) 
 c     x     2.0*sin((k-(rk+nrgrd+1))*0.5*pi/(nz-(rk+nrgrd+1)))**2 
 c                                !dz_grid(k-1) + 0.01*delz 
  34   continue
@@ -182,7 +182,7 @@ c CDIR@ NEXTSCALAR
       do 37 k = 1,rk-nrgrd-1
          ind = rk-nrgrd-k
          dz_grid(ind) = delz + 
-     x     0.0*delz*(rk-nrgrd-1-ind)/(rk-nrgrd-1)
+     x     1.0*delz*(rk-nrgrd-1-ind)/(rk-nrgrd-1)
 c     x     2.0*sin((rk-nrgrd-1-ind)*(-0.5*pi)/(rk-nrgrd-1))**2 
 c                                !dz_grid(ind+1) + 0.01*delz
  37   continue
@@ -195,11 +195,17 @@ c         write(*,*) 'dz_grid...',k,dz_grid(k)
 
       dz_cell(1) = dz_grid(1)
       dz_cell(nz) = dz_grid(nz)
+      zrat(1) = 0.5
+      zrat(nz) = 0.5
       do 40 k=2,nz-1
          dz_cell(k) = ((qz(k+1) + qz(k))/2.0) -
      x                ((qz(k) + qz(k-1))/2.0)
- 40            continue
+               
+         zplus = (qz(k+1) + qz(k))/2.0
+         zminus = (qz(k) + qz(k-1))/2.0
+         zrat(k) = (qz(k) - zminus)/(zplus - zminus)
 
+ 40   continue
 
 c      call assign('assign -F system -N ultrix f:' //'c.coord.dat')
       open(40,file=trim(out_dir)//'c.coord.dat',status='unknown',
