@@ -112,7 +112,7 @@ c     x                                  npart,ipart
                         ijkp(l,3) = kk+1
                      endif
                      mrat(l) = 1.0
-                     m_arr(l) = mproton
+                     m_arr(l) = mion
                      Ni_tot = Ni_tot + 1
                   enddo
                endif
@@ -695,7 +695,7 @@ c 40                  continue
                      if (xp(l,3) .gt. (qz(kk)+(dz_grid(kk)/2))) then
                         ijkp(l,3) = kk+1
                      endif
-                     mrat(l) = mproton/m_top
+                     mrat(l) = mion/m_top
                      m_arr(l) = m_top
 
 c add energy
@@ -802,7 +802,7 @@ c 45                  continue
                      if (xp(l,3) .gt. (qz(kk)+(dz_grid(kk)/2))) then
                         ijkp(l,3) = kk+1
                      endif
-                     mrat(l) = mproton/m_bottom
+                     mrat(l) = mion/m_bottom
                      m_arr(l) = m_bottom
 
 c add energy
@@ -957,7 +957,7 @@ c 44                  continue
                         ijkp(l,3) = kk+1
                      endif
                      mrat(l) = 1.0
-                     m_arr(l) = mproton
+                     m_arr(l) = mion
 
 c add energy
                      do m=1,3
@@ -1079,7 +1079,7 @@ c 50                  continue
                         ijkp(l,3) = kk+1
                      endif
                      mrat(l) = 1.0
-                     m_arr(l) = mproton
+                     m_arr(l) = mion
 
 c add energy
                      do m=1,3
@@ -1587,7 +1587,7 @@ c         volb = dx*dy*(qz(k+1)-qz(k))*beta
 
  20      continue
 
-         mnp(:,:,:) = mproton*mnp(:,:,:) !mass density
+         mnp(:,:,:) = mion*mnp(:,:,:) !mass density
 
 c use for periodic boundary conditions
          mnp(nx-1,:,:) = mnp(nx-1,:,:)+mnp(1,:,:)
@@ -2370,7 +2370,7 @@ c use for periodic boundary conditions
       do i = 1,nx
          do j = 1,ny
             do k = 1,nz
-               temp_p(i,j,k) = (1./3.)*1e6*mproton*(
+               temp_p(i,j,k) = (1./3.)*1e6*mion*(
      x                  sqrt((up2(i,j,k,1) - up_ave(i,j,k,1)**2)**2 +
      x                       (up2(i,j,k,2) - up_ave(i,j,k,2)**2)**2 + 
      x                       (up2(i,j,k,3) - up_ave(i,j,k,3)**2)**2))  

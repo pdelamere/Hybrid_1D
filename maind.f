@@ -207,14 +207,14 @@ c 68            continue
 
 c      Ni_tot = 4000000
 
-c      m_arr(1:Ni_tot) = mproton
-c      m_arr(Ni_tot+1:) = m_pu*mproton  !mass N_2+ = 28.0
+c      m_arr(1:Ni_tot) = mion
+c      m_arr(Ni_tot+1:) = m_pu*mion  !mass N_2+ = 28.0
 c      mrat(1:Ni_tot) = 1.0
 c      mrat(Ni_tot+1:) = 1.0/m_pu  !mass N_2+ = 28.0
 
 c add 10% heavy ions
 
-c      m_arr(1:Ni_tot*0.1) = mproton*16.0
+c      m_arr(1:Ni_tot*0.1) = mion*16.0
 c      mrat(1:Ni_tot*0.1) = 1.0/16.0
 
 c      beta = (Ni_tot/(nx*dx*ny*dy*nz*delz))/nf_init
@@ -246,8 +246,12 @@ c      write(*,*) 'starting part setup...'
 
       call MPI_Barrier(MPI_COMM_WORLD,ierr)
 
-      call sw_part_setup_maxwl_mix(np,vp,vp1,xp,input_p,up,np_t_flg,
-     x                         np_b_flg)
+c      call sw_part_setup_maxwl_mix(np,vp,vp1,xp,input_p,up,np_t_flg,
+c     x                         np_b_flg)
+
+      call load_Maxwellian(np,vp,vp1,xp,input_p,up,
+     x                       vth_bottom, Ni_tot)
+
 
 c      write(*,*) 'finishing part setup...'
 c      call part_setup_maxwl_p(np,vp,vp1,xp,input_p,up,np_t_flg,
@@ -315,7 +319,7 @@ c         write(109) nu_init,lww2,lww1
 c         write(109) Mdot,Mdot_part
          write(109) vtop,vbottom
          write(109) Ni_max
-         write(109) mproton,m_pu,m_heavy
+         write(109) mion,m_pu,m_heavy
          write(109) np_top,np_bottom
          write(109) b0_top,b0_bottom
          write(109) vth_top,vth_bottom

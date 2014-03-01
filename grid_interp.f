@@ -60,11 +60,11 @@ c----------------------------------------------------------------------
 
       real v(nx,ny,nz,3)        !vector at contravarient position
       real vc(nx,ny,nz,3)       !vector at cell center
-      real zfrc(nz)             !0.5*dz_grid(k)/dz_cell(k)
+c      real zfrc(nz)             !0.5*dz_grid(k)/dz_cell(k)
 
-      do 5 k=1,nz
-         zfrc(k) = 0.5*dz_grid(k)/dz_cell(k)
- 5       continue
+c      do 5 k=1,nz
+c         zfrc(k) = 0.5*dz_grid(k)/dz_cell(k)
+c 5       continue
 
       call periodic(v)
 
@@ -82,7 +82,7 @@ c               if (km .lt. 1) then km = nz-1
 
                vc(i,j,k,1) = 0.5*(v(i,j,k,1) + v(im,j,k,1))
                vc(i,j,k,2) = 0.5*(v(i,j,k,2) + v(i,jm,k,2))
-               vc(i,j,k,3) = zfrc(k)*(v(i,j,k,3) - v(i,j,km,3)) + 
+               vc(i,j,k,3) = zrat(k)*(v(i,j,k,3) - v(i,j,km,3)) + 
      x                                v(i,j,km,3)
  10            continue
 

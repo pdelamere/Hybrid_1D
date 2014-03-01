@@ -205,7 +205,7 @@ c         write(*,*) 'xp,qz....',l,k,ijkp(l,3),xp(l,3),qz(k),
 c     x                          qz(ijkp(l,3))
 
             mrat(l) = 1.0/m_pu
-            m_arr(l) = mproton*m_pu
+            m_arr(l) = mion*m_pu
  20      continue
          
          do 60 l = l1,Ni_tot
@@ -261,7 +261,7 @@ c           write(*,*) 'Wake depletion, adding particle',procnum,l1,i,j,k
                         ijkp(l,3) = kk+1
                      endif
                      mrat(l) = 1.0
-                     m_arr(l) = mproton
+                     m_arr(l) = mion
                      Ni_tot = Ni_tot + 1
                   endif
 
@@ -374,7 +374,7 @@ c                  write(*,*) 'npofr...',npofr
                         endif
                         
                         mrat(l) = 1.0/m_pu
-                        m_arr(l) = mproton*m_pu
+                        m_arr(l) = mion*m_pu
                         Ni_tot = l
                         cnt = cnt + 1
                         do m=1,3
@@ -412,7 +412,7 @@ c                  write(*,*) 'npofr...',npofr
                         endif
 
                         mrat(l) = 1.0/m_pu
-                        m_arr(l) = mproton*m_pu
+                        m_arr(l) = mion*m_pu
                         Ni_tot = l
                         cnt = cnt + 1
                         do m=1,3
@@ -477,7 +477,7 @@ c                     if (xp(l,3) .gt. (qz(kk)+(dz_grid(kk)/2))) then
 c                        ijkp(l,3) = kk+1
 c                     endif
 c                     mrat(l) = 1.0
-c                     m_arr(l) = mproton
+c                     m_arr(l) = mion
 c                     Ni_tot = Ni_tot + 1
 c                  endif
 

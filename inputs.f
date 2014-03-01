@@ -4,7 +4,7 @@
       USE mpi
 
       real b0_init
-      integer mion
+      integer ion_amu
       integer mp
       real nf_init
       real dt_frac
@@ -18,7 +18,7 @@ c      integer*4 Ni_max
       real nu_init_frac
       
 
-      real mproton,q
+      real mion,q
 c      PARAMETER (b0_init = 1700e-9)    !was 0.2
 
       PARAMETER (q = 1.6e-19)        !electron charge (Coulombs)
@@ -102,8 +102,8 @@ c      PARAMETER (alpha = 1.9263418e-20) !mH...determines particle scaling
       
       read(100,*) b0_init
       write(*,*) 'b0_init...',b0_init
-      read(100,*) mion
-      write(*,*) 'mion......',mion
+      read(100,*) ion_amu
+      write(*,*) 'amu......',ion_amu
       read(100,*) mpu
       write(*,*) 'mpu.......',mpu
       read(100,*) nf_init
@@ -132,10 +132,10 @@ c      write(*,*) 'Ni_max....',Ni_max
       end subroutine readInputs
 
       subroutine initparameters()
-      mproton = mion*1.67e-27
+      mion = ion_amu*1.67e-27
 
       lambda_i = (3e8/
-     x            sqrt((nf_init/1e9)*q*q/(8.85e-12*mproton)))/1e3
+     x            sqrt((nf_init/1e9)*q*q/(8.85e-12*mion)))/1e3
 
       dx = lambda_i*dx_frac 
       dy = lambda_i*dx_frac   !units in km
@@ -143,7 +143,7 @@ c      write(*,*) 'Ni_max....',Ni_max
                                        !this is not the final dz
                                        !d_lamba determines dz
 
-      dt = dt_frac*mproton/(q*b0_init)     !main time step
+      dt = dt_frac*mion/(q*b0_init)     !main time step
       dtsub_init = dt/ntsub !subcycle time step 
 
 
@@ -155,7 +155,7 @@ c      write(*,*) 'Ni_max....',Ni_max
 
       write(*,*) 'Ni_tot_0...',Ni_tot_0, Ni_max,Ni_tot_frac
 
-      mO = mproton    !mass of H (kg)
+      mO = mion    !mass of H (kg)
 
 
 
@@ -171,14 +171,14 @@ c      write(*,*) 'Ni_max....',Ni_max
       vth_top = 30.00
       vth_bottom = 30.00
       vth_max = 3*30.0
-      m_top = mproton
-      m_bottom = mproton
+      m_top = mion
+      m_bottom = mion
       nn_coef = 1e5
       Lo = 4.0*dx             !gradient scale length of boundary
 
-      nu_init = nu_init_frac*q*b0_init/mproton
+      nu_init = nu_init_frac*q*b0_init/mion
 
-      alpha = (mu0/1e3)*q*(q/mproton) !mH...determines particle scaling
+      alpha = (mu0/1e3)*q*(q/mion) !mH...determines particle scaling
       end subroutine initparameters
 
 

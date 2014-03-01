@@ -217,7 +217,7 @@ c      include 'incurv.h'
       real npave(3),nfave(3)
 
 
-      call crossf(E,b1,exb)
+      call crossf2(E,b1,exb)
 
       do 5 m=1,3
          pup(m) = 0

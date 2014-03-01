@@ -27,7 +27,7 @@ c     x     etemp(nx,ny,nz),
      x     up(nx,ny,nz,3),
      x     np(nx,ny,nz)
 
-      real mO_q
+      real m_q
      
 
       real Evp                  !kinetic energy of particles
@@ -45,7 +45,7 @@ c     x     etemp(nx,ny,nz),
       integer count
       count = 1
 
-      mO_q = mO/q
+      m_q = mion/q
 
       Euf = 0.0
       EB1 = 0.0
@@ -59,17 +59,17 @@ c     x     etemp(nx,ny,nz),
 c         do 10 j=1,ny-1
             do 10 k=1,nz-1
                vol = dx*dy*dz_cell(k)*km_to_m**3
-               EB1x = EB1x + (vol/(2.0*mu0))*(mO_q*b1(i,j,k,1))**2 
-               EB1y = EB1y + (vol/(2.0*mu0))*(mO_q*b1(i,j,k,2))**2 
-               EB1z = EB1z + (vol/(2.0*mu0))*(mO_q*b1(i,j,k,3))**2 
+               EB1x = EB1x + (vol/(2.0*mu0))*(m_q*b1(i,j,k,1))**2 
+               EB1y = EB1y + (vol/(2.0*mu0))*(m_q*b1(i,j,k,2))**2 
+               EB1z = EB1z + (vol/(2.0*mu0))*(m_q*b1(i,j,k,3))**2 
 c               EeP = EeP + kboltz*etemp(i,j,k)
                do 10 m=1,3
                   denf = np(i,j,k)/(km_to_m**3)
                   Euf = Euf + 0.5*mO*denf*vol*(up(i,j,k,m)*km_to_m)**2
                   EB1 = EB1 + 
-     x              (vol/(2.0*mu0))*(mO_q*(b1(i,j,k,m)-b0(i,j,k,m)))**2
+     x              (vol/(2.0*mu0))*(m_q*(b1(i,j,k,m)-b0(i,j,k,m)))**2
                   EE = EE + (epsilon*vol/2.0)*
-     x                      (mO_q*E(i,j,k,m)*km_to_m)**2
+     x                      (m_q*E(i,j,k,m)*km_to_m)**2
  10               continue
 
 c      input_EeP = input_EeP + EeP
@@ -191,8 +191,8 @@ c         xp(l,3) = qz(k)+dz_grid(k)*(0.5-pad_ranf())
          do 45 m=1,3
             vp1(l,m) = vp(l,m)
             input_E = input_E + 
-     x           0.5*mproton*(vp(l,m)*km_to_m)**2 /beta
-            input_p(m) = input_p(m) + mproton*vp(l,m) / beta
+     x           0.5*mion*(vp(l,m)*km_to_m)**2 /beta
+            input_p(m) = input_p(m) + mion*vp(l,m) / beta
  45      continue
  10      continue
 
@@ -282,8 +282,8 @@ c         vp(l,3) = 0.0
          do 45 m=1,3
             vp1(l,m) = vp(l,m)
             input_E = input_E + 
-     x           0.5*mproton*(vp(l,m)*km_to_m)**2 /beta
-            input_p(m) = input_p(m) + mproton*vp(l,m) / beta
+     x           0.5*mion*(vp(l,m)*km_to_m)**2 /beta
+            input_p(m) = input_p(m) + mion*vp(l,m) / beta
  45      continue
  10      continue
 c      endif
@@ -352,12 +352,12 @@ c add heavies to bottom first
 c            if (xp(l,3) .ge. qz(nz/2)) then
 c               np_t_flg(l) = 1
 c               m_arr(l) = m_top
-c               mrat(l) = mproton/m_top
+c               mrat(l) = mion/m_top
 c            endif
 c            if (xp(l,3) .lt. qz(nz/2)) then
             np_b_flg(l) = 1
             m_arr(l) = m_bottom
-            mrat(l) = mproton/m_bottom
+            mrat(l) = mion/m_bottom
 c            endif
             
  20      continue
@@ -445,7 +445,7 @@ c add 10% initial Ni_tot for uniform proton background
             xp(l,2) = qy(1)+(1.0-pad_ranf())*(qy(ny-1)-qy(1))
             xp(l,3) = qz(1)+(1.0-pad_ranf())*(qz(nz)-qz(1))         
             np_b_flg(l) = 0
-            m_arr(l) = mproton
+            m_arr(l) = mion
             mrat(l) = 1.0
 
             ijkp(l,1) = nint(xp(l,1)/dx) !particle grid location index
@@ -538,12 +538,12 @@ c add protons to top half
 c             if (xp(l,3) .ge. qz(nz/2)) then
              np_t_flg(l) = 1
              m_arr(l) = m_top
-             mrat(l) = mproton/m_top
+             mrat(l) = mion/m_top
 c             endif
 c             if (xp(l,3) .lt. qz(nz/2)) then
 c                np_b_flg(l) = 1
 c                m_arr(l) = m_bottom
-c                mrat(l) = mproton/m_bottom
+c                mrat(l) = mion/m_bottom
 c             endif
 
  70      continue
@@ -688,12 +688,13 @@ c            if (pad_ranf() .le. rnd) flg = 1
 cc            if (xp(l,3) .ge. qz(nz/2)) then
 cc               np_t_flg(l) = 1
 cc               m_arr(l) = m_top
-cc               mrat(l) = mproton/m_top
+cc               mrat(l) = mion/m_top
 cc            endif
 cc            if (xp(l,3) .lt. qz(nz/2)) then
 c            np_b_flg(l) = 1
-         m_arr(l) = mproton
+         m_arr(l) = mion
          mrat(l) = 1.0
+
 c            endif
             
 c 20      continue
@@ -804,7 +805,7 @@ c               rnd = ((1.0-tanh((xp(l,3)-qz(nz/2))/(Lo)))/2.0) !for bottom
 c               rnd = (1.0+tanh((xp(l,3)-qz(nz/2))/(Lo)))/2.0 !for top
 c               if (pad_ranf() .le. rnd) flg = 1
 c               np_t_flg(l) = 1
-            m_arr(l) = mproton
+            m_arr(l) = mion
             mrat(l) = 1.0
 c 22         continue
 
@@ -909,7 +910,7 @@ c               rnd = ((1.0-tanh((xp(l,3)-qz(nz/2))/(Lo)))/2.0) !for bottom
 c               rnd = (1.0+tanh((xp(l,3)-qz(nz/2))/(Lo)))/2.0 !for top
 c               if (pad_ranf() .le. rnd) flg = 1
 c               np_t_flg(l) = 1
-            m_arr(l) = mproton
+            m_arr(l) = mion
             mrat(l) = 1.0
 c 22         continue
 
@@ -1054,12 +1055,12 @@ c----------------------------------------------------------------------
 c            if (xp(l,3) .ge. qz(nz/2)) then
 c               np_t_flg(l) = 1
 c               m_arr(l) = m_top
-c               mrat(l) = mproton/m_top
+c               mrat(l) = mion/m_top
 c            endif
 c            if (xp(l,3) .lt. qz(nz/2)) then
             np_b_flg(l) = 1
             m_arr(l) = m_bottom
-            mrat(l) = mproton/m_bottom
+            mrat(l) = mion/m_bottom
 c            endif
             
  20      continue
@@ -1155,12 +1156,12 @@ c     x     0.5*(vth_top - vth_bottom)*tanh((qz(ijkp(l,3))-qz(nz/2))/Lo)
 c             if (xp(l,3) .ge. qz(nz/2)) then
              np_t_flg(l) = 1
              m_arr(l) = m_top
-             mrat(l) = mproton/m_top
+             mrat(l) = mion/m_top
 c             endif
 c             if (xp(l,3) .lt. qz(nz/2)) then
 c                np_b_flg(l) = 1
 c                m_arr(l) = m_bottom
-c                mrat(l) = mproton/m_bottom
+c                mrat(l) = mion/m_bottom
 c             endif
 
  70      continue
@@ -1341,12 +1342,12 @@ c----------------------------------------------------------------------
 c            if (xp(l,3) .ge. qz(nz/2)) then
 c               np_t_flg(l) = 1
 c               m_arr(l) = m_top
-c               mrat(l) = mproton/m_top
+c               mrat(l) = mion/m_top
 c            endif
 c            if (xp(l,3) .lt. qz(nz/2)) then
             np_b_flg(l) = 1
             m_arr(l) = m_bottom
-            mrat(l) = mproton/m_bottom
+            mrat(l) = mion/m_bottom
 c            endif
             
  20      continue
@@ -1438,12 +1439,12 @@ c            endif
 c             if (xp(l,3) .ge. qz(nz/2)) then
              np_t_flg(l) = 1
              m_arr(l) = m_top
-             mrat(l) = mproton/m_top
+             mrat(l) = mion/m_top
 c             endif
 c             if (xp(l,3) .lt. qz(nz/2)) then
 c                np_b_flg(l) = 1
 c                m_arr(l) = m_bottom
-c                mrat(l) = mproton/m_bottom
+c                mrat(l) = mion/m_bottom
 c             endif
 
  70      continue
@@ -1590,11 +1591,11 @@ c      np_b_flg(:) = 0
 c            if (xp(l,3) .ge. qz(nz/2)) then
 c               np_t_flg(l) = 1
 c               m_arr(l) = m_top
-c               mrat(l) = mproton/m_top
+c               mrat(l) = mion/m_top
 c            endif
 c            if (xp(l,3) .lt. qz(nz/2)) then
             np_b_flg(l) = 1
-            m_arr(l) = m_heavy*mproton
+            m_arr(l) = m_heavy*mion
             mrat(l) = 1.0/m_heavy
 c            endif
             
@@ -1691,13 +1692,13 @@ c         Ni_tot = Ni_tot + Ni_tot*np_top/np_bottom
              if (pad_ranf() .le. rnd) flg = 1
 c             if (xp(l,3) .ge. qz(nz/2)) then
              np_t_flg(l) = 1
-             m_arr(l) = m_heavy*mproton
+             m_arr(l) = m_heavy*mion
              mrat(l) = 1.0/m_heavy
 c             endif
 c             if (xp(l,3) .lt. qz(nz/2)) then
 c                np_b_flg(l) = 1
 c                m_arr(l) = m_bottom
-c                mrat(l) = mproton/m_bottom
+c                mrat(l) = mion/m_bottom
 c             endif
 
  70      continue
@@ -1905,8 +1906,8 @@ c            write(*,*) 'rnd...',rnd
          do 45 m=1,3
             vp1(l,m) = vp(l,m)
             input_E = input_E + 
-     x           0.5*mproton*(vp(l,m)*km_to_m)**2 /beta
-            input_p(m) = input_p(m) + mproton*vp(l,m) / beta
+     x           0.5*mion*(vp(l,m)*km_to_m)**2 /beta
+            input_p(m) = input_p(m) + mion*vp(l,m) / beta
  45      continue
  10      continue
 c      endif
@@ -1928,6 +1929,118 @@ c      enddo
       return
       end SUBROUTINE sw_part_setup_maxwl_1
 c----------------------------------------------------------------------
+
+
+c----------------------------------------------------------------------
+      SUBROUTINE load_Maxwellian(np,vp,vp1,xp,input_p,up,vth,Ni_tot_1)
+c----------------------------------------------------------------------
+
+      real np(nx,ny,nz)
+      real vp(Ni_max,3)
+      real vp1(Ni_max,3)
+      real xp(Ni_max,3)
+      real input_p(3)
+      real up(nx,ny,nz,3)
+c      real phi,theta,rnd,f,v
+c      real rand
+c      real vx,vy,vz
+c      real dvx,dvz,v1
+c      integer np_t_flg(Ni_max)
+c      integer np_b_flg(Ni_max)
+      integer Ni_tot_1
+      real vth
+
+c      integer flg
+c      real nprat
+
+      v1 = 1.0
+
+c      np_t_flg(:) = 0
+c      np_b_flg(:) = 0
+
+      do 10 l = 1,Ni_tot_1
+
+         xp(l,1) = qx(1)+(1.0-pad_ranf())*(qx(nx-1)-qx(1))
+         xp(l,2) = qy(1)+(1.0-pad_ranf())*(qy(ny-1)-qy(1))
+         xp(l,3) = qz(1)+(1.0-pad_ranf())*(qz(nz-1)-qz(1))
+         m_arr(l) = mion
+         mrat(l) = 1.0
+
+         ijkp(l,1) = floor(xp(l,1)/dx) 
+         ijkp(l,2) = floor(xp(l,2)/dy) 
+         
+         k=0
+ 30      continue
+         k = k + 1
+         if (xp(l,3) .gt. qz(k)) go to 30 !find k on non-uniform 
+         k = k-1
+         ijkp(l,3)= k
+         
+c         vth = vth_bottom
+
+         vx = vth*sqrt(-alog(pad_ranf()))*cos(PI*pad_ranf())
+         vy = vth*sqrt(-alog(pad_ranf()))*cos(PI*pad_ranf())
+         vz = vth*sqrt(-alog(pad_ranf()))*cos(PI*pad_ranf())
+
+c         flg = 0
+c         do 40 while (flg .eq. 0)
+c            v = (2*vth_max*pad_ranf())-vth_max
+c            f = exp(-(v)**2 / vth**2)
+c            rnd = pad_ranf()
+c            if (f .ge. rnd) then 
+c               flg = 1
+c               vx = v
+c            endif
+c 40      continue
+
+
+c         flg = 0
+c         do 42 while (flg .eq. 0)
+c            v = (2*vth_max*pad_ranf())-vth_max
+c            f = exp(-(v)**2 / vth**2)
+c            rnd = pad_ranf()
+c            if (f .ge. rnd) then 
+c               flg = 1
+c               vy = v
+c            endif
+c 42      continue
+c         flg = 0
+c         do 44 while (flg .eq. 0)
+c            v = (2*vth_max*pad_ranf())-vth_max
+c            f = exp(-(v)**2 / vth**2)
+c            rnd = pad_ranf()
+c            if (f .ge. rnd) then 
+c               flg = 1
+c               vz = v
+c            endif
+c 44      continue
+
+         ii = ijkp(l,1)
+         kk = ijkp(l,3)
+         vp(l,1) = 57.0*exp(-(xp(l,3)-qz(nz/2))**2/(10.*delz)**2)+vx
+         vp(l,2) = vy 
+         vp(l,3) = vz 
+
+c         if (xp(l,3) .gt. qz(nz/2)) mix_ind(l) = 1
+c         if (xp(l,3) .le. qz(nz/2)) mix_ind(l) = 0
+            
+         do 45 m=1,3
+            vp1(l,m) = vp(l,m)
+            input_E = input_E + 
+     x           0.5*m_arr(l)*(vp(l,m)*km_to_m)**2 /beta
+            input_p(m) = input_p(m) + m_arr(l)*vp(l,m) / beta
+ 45      continue
+ 10      continue
+
+      call get_interp_weights(xp)
+      call update_np(np)
+      call update_up(vp,np,up)
+
+      return
+      end SUBROUTINE load_Maxwellian
+c----------------------------------------------------------------------
+
+
 
 
 
