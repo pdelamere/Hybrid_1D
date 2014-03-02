@@ -1914,8 +1914,6 @@ c      endif
 c      enddo
 
 
-
- 
       write(*,*) 'get interp weights...'
       call get_interp_weights(xp)
       write(*,*) 'update_np...'

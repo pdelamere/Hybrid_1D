@@ -1230,8 +1230,6 @@ c      call fix_tangential_E(E)
 c      call periodic(E)
 c      call fix_tangential_E(E)
 
-c      write(*,*) 'E cb...',E(23,8,14,1),E(23,8,14,2),E(23,8,14,3)
-
       do 10 k=2,nz-1
          do 10 j=2,ny-1
             do 10 i=2,nx-1

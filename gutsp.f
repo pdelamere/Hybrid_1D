@@ -24,7 +24,6 @@ CVD$R VECTOR
       do 5 m=1,3   !remove ion energy from total input energy
          input_E = input_E-0.5*m_arr(l)*(vp(ion_l,m)*km_to_m)**2 /beta
  5    continue
-c      write(*,*) 'removing ion...',ion_l
 
       do 10 l=ion_l,Ni_tot-1
          do 10 m=1,3 
@@ -87,8 +86,6 @@ c               endif
                if (np(i,j,k).le.minden) then
                   npart = nint(minden/np(i,j,k))
                   do ipart = 1,npart 
-c                     write(*,*) 'np...',i,j,k,np(i,j,k),min_den,den_part,
-c     x                                  npart,ipart
 
                      l=Ni_tot + 1 !beginning array element for new borns    
                   
@@ -185,10 +182,6 @@ c     x     gradPc(nx,ny,nz,3)     !gradP at cell center
       call face_to_center(aj,ajc)
       call face_to_center(up,upc)
 
-
-c      write(*,*) 'btc...',up(nx,1,nz/2,1),up(nx-1,1,nz/2,1),
-c     x                    up(nx-2,1,nz/2,1)
-
 c      call face_to_center(uf,ufc)
 c      call face_to_center(gradP,gradPc)
 
@@ -273,8 +266,8 @@ c     x                + nu(i,j,k)*fnf*(uf3(m)-up3(m))
 c     x                - gradP3(m) 
 c     x                + nuei*aj3(m) 
 c                     + etar(i,j,k,m)*aj3(m)
-            Ep(l,m) = Ep(l,m)*mrat(l) !O_to_Ba
- 30         continue
+            Ep(l,m) = Ep(l,m)*mrat(l) 
+ 30      continue
 
  10      continue
 
@@ -335,16 +328,16 @@ c     x               + btc(i,jp,kp,m)*wght(l,7)
 c     x               + btc(ip,jp,kp,m)*wght(l,8)
 c 25         continue
 
-c         vminus_x_B(l,1) = vminus(l,2)*btc3(l,3)*mrat(l) - !O_to_Ba - 
-c     x                     vminus(l,3)*btc3(l,2)*mrat(l)   !O_to_Ba
-c         vminus_x_B(l,2) = vminus(l,3)*btc3(l,1)*mrat(l) - !O_to_Ba - 
-c     x                     vminus(l,1)*btc3(l,3)*mrat(l)   !O_to_Ba
-c         vminus_x_B(l,3) = vminus(l,1)*btc3(l,2)*mrat(l) - !O_to_Ba -
-c     x                     vminus(l,2)*btc3(l,1)*mrat(l)   !O_to_Ba
+c         vminus_x_B(l,1) = vminus(l,2)*btc3(l,3)*mrat(l) - 
+c     x                     vminus(l,3)*btc3(l,2)*mrat(l)   
+c         vminus_x_B(l,2) = vminus(l,3)*btc3(l,1)*mrat(l) - 
+c     x                     vminus(l,1)*btc3(l,3)*mrat(l)   
+c         vminus_x_B(l,3) = vminus(l,1)*btc3(l,2)*mrat(l) - 
+c     x                     vminus(l,2)*btc3(l,1)*mrat(l)   
 
-c         vminus_dot_B(l) = vminus(l,1)*btc3(l,1)*mrat(l) + !O_to_Ba +
-c     x                     vminus(l,2)*btc3(l,2)*mrat(l) + !O_to_Ba +
-c     x                     vminus(l,3)*btc3(l,3)*mrat(l)   !O_to_Ba
+c         vminus_dot_B(l) = vminus(l,1)*btc3(l,1)*mrat(l) + 
+c     x                     vminus(l,2)*btc3(l,2)*mrat(l) + 
+c     x                     vminus(l,3)*btc3(l,3)*mrat(l)   
 
 c 20   continue
    
@@ -374,20 +367,20 @@ c         if (kp .ge. nz) kp = 2 !periodic boundary conditions
             
  35      continue
 
-         vminus_x_B(1) = vminus(l,2)*btc3(3)*mrat(l) - !O_to_Ba - 
-     x                     vminus(l,3)*btc3(2)*mrat(l)   !O_to_Ba
-         vminus_x_B(2) = vminus(l,3)*btc3(1)*mrat(l) - !O_to_Ba - 
-     x                     vminus(l,1)*btc3(3)*mrat(l)   !O_to_Ba
-         vminus_x_B(3) = vminus(l,1)*btc3(2)*mrat(l) - !O_to_Ba -
-     x                     vminus(l,2)*btc3(1)*mrat(l)   !O_to_Ba
+         vminus_x_B(1) = vminus(l,2)*btc3(3)*mrat(l) - 
+     x                     vminus(l,3)*btc3(2)*mrat(l)   
+         vminus_x_B(2) = vminus(l,3)*btc3(1)*mrat(l) - 
+     x                     vminus(l,1)*btc3(3)*mrat(l)   
+         vminus_x_B(3) = vminus(l,1)*btc3(2)*mrat(l) - 
+     x                     vminus(l,2)*btc3(1)*mrat(l)   
 
-         vminus_dot_B = vminus(l,1)*btc3(1)*mrat(l) + !O_to_Ba +
-     x                     vminus(l,2)*btc3(2)*mrat(l) + !O_to_Ba +
-     x                     vminus(l,3)*btc3(3)*mrat(l)   !O_to_Ba
+         vminus_dot_B = vminus(l,1)*btc3(1)*mrat(l) + 
+     x                     vminus(l,2)*btc3(2)*mrat(l) + 
+     x                     vminus(l,3)*btc3(3)*mrat(l)   
 
-         Bx = btc3(1)*mrat(l) !O_to_Ba
-         By = btc3(2)*mrat(l) !O_to_Ba
-         Bz = btc3(3)*mrat(l) !O_to_Ba
+         Bx = btc3(1)*mrat(l) 
+         By = btc3(2)*mrat(l) 
+         Bz = btc3(3)*mrat(l) 
       
          B2 = Bx*Bx + By*By + Bz*Bz
          dt2 = dt*dt
@@ -399,7 +392,7 @@ c         if (kp .ge. nz) kp = 2 !periodic boundary conditions
 
          do 40 m=1,3
             vplus(l,m) = a1*vminus(l,m) + a2*vminus_x_B(m) + 
-     x           a3*vminus_dot_B*btc3(m)*mrat(l) !O_to_Ba
+     x           a3*vminus_dot_B*btc3(m)*mrat(l) 
  40      continue
 
  30   continue
@@ -426,7 +419,6 @@ c----------------------------------------------------------------------
       do 10 m=1,3
          do 10 l = 1,Ni_tot
             vp1(l,m) = 0.5*(vplus(l,m) + vminus(l,m))
-c            write(*,*) 'vp1....',m,vp1(l,m)
  10         continue
 
       call update_up(vp1,np,up)
@@ -611,11 +603,9 @@ c      print *,'minden...',np_top,den_part
 
             if (np(i,j,k) .le. (np_top-den_part)) then
                npart = nint((np_top - np(i,j,k))/den_part)
-c               print *,'npart top...',npart
+
                if (my_rank .eq. nint(pad_ranf()*procnum)) then
                   do ipart = 1,npart 
-c                     write(*,*) 'np...',np(i,j,k),np_top,den_part,
-c     x                    npart,ipart
                      
                      l=Ni_tot + 1 !beginning array element for new borns    
                      
@@ -852,17 +842,14 @@ c      real btot,a1,a2,womega,phi,deltat
       k = nz-1   !top boundary
       minden = np_top-den_part
 
-c      print *,'minden...',np_top,den_part
       do i = 2,nx-1
          do j = 2,ny-1
 
             if (np(i,j,k) .le. (np_top-den_part)) then
                npart = nint((np_top - np(i,j,k))/den_part)
-c               print *,'npart top...',npart
+
                if (my_rank .eq. nint(pad_ranf()*procnum)) then
                   do ipart = 1,npart 
-c                     write(*,*) 'np...',np(i,j,k),np_top,den_part,
-c     x                    npart,ipart
                      
                      l=Ni_tot + 1 !beginning array element for new borns    
                      
@@ -1506,26 +1493,6 @@ c use for periodic boundary conditions
          np(:,:,:) = reshape(recvbuf,(/nx,ny,nz/))
 
 
-c         write(*,*) 'recvbuf...',recvbuf(nx*ny+1:nx*ny+10)
-c         write(*,*) 'np........',np(1:10,1,2)
-         
-c         write(*,*) 'np ...',np(20,20,20)         
-c         do i = 1,nx
-c            do j = 1,ny
-c               do k = 1,nz
-
-c                  call MPI_ALLREDUCE(np(i,j,k),recvbuf,count,
-c     x                 MPI_REAL,MPI_SUM,MPI_COMM_WORLD,ierr)
-c                  np(i,j,k) = recvbuf
-c               enddo
-c            enddo
-c         enddo
-c         write(*,*) 'np1...',np(20,20,20)
-
-c add density to boundary cells
-
-
-
       call periodic_scalar(np)
 
       return
@@ -1854,13 +1821,6 @@ c               up(i,j,k,3) = ct(i,j,k,3)
 
       call periodic(up)
 
-c      write(*,*) 'up...',up(20,20,21,1),up(20,20,21,2),up(20,20,21,3)
-
-c      up(nx,:,:,1) = -vsw
-c      up(nx,:,:,2) = 0.0
-c      up(nx,:,:,3) = 0.0
-
-
       return
       end SUBROUTINE update_up
 c----------------------------------------------------------------------
@@ -1929,25 +1889,6 @@ c         volb = dx*dy*(qz(k+1)-qz(k))*beta
      x        MPI_REAL,MPI_SUM,MPI_COMM_WORLD,ierr)
 
          np(:,:,:) = reshape(recvbuf,(/nx,ny,nz/))
-
-
-c         write(*,*) 'recvbuf...',recvbuf(nx*ny+1:nx*ny+10)
-c         write(*,*) 'np........',np(1:10,1,2)
-         
-c         write(*,*) 'np ...',np(20,20,20)         
-c         do i = 1,nx
-c            do j = 1,ny
-c               do k = 1,nz
-
-c                  call MPI_ALLREDUCE(np(i,j,k),recvbuf,count,
-c     x                 MPI_REAL,MPI_SUM,MPI_COMM_WORLD,ierr)
-c                  np(i,j,k) = recvbuf
-c               enddo
-c            enddo
-c         enddo
-c         write(*,*) 'np1...',np(20,20,20)
-
-c add density to boundary cells
 
 c use for periodic boundary conditions
       np(nx-1,:,:) = np(nx-1,:,:)+np(1,:,:)
@@ -2098,8 +2039,6 @@ c use for periodic boundary conditions
 
 
       call periodic(up)
-
-      write(*,*) 'up_t...',up(10,1,nz/2+10,:)
 
       return
       end SUBROUTINE separate_up
@@ -2379,8 +2318,6 @@ c     x                              up_ave(i,j,k,2)**2 +
 c     x                              up_ave(i,j,k,3)**2))
 c               if ((temp_p(i,j,k)/1.6e-19 .gt. 1.0) .and. 
 c     x            (temp_p(i,j,k)/1.6e-19 .lt. 500.0)) then
-c          write(*,*) 'temp_p err...',temp_p(i,j,k)/1.6e-19,up2(i,j,k,1),
-c     x               up_ave(i,j,k,1)**2
 c               endif
             enddo
          enddo

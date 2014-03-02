@@ -6,6 +6,7 @@ restart*
 *.mp4
 *.sav
 tmp3/*
+tmp1/*
 *.mod
 *#
 b0.dat

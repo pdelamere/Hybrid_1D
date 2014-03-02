@@ -134,115 +134,49 @@ c      seed = float(t1)
 c----------------------------------------------------------------------
 c Initialize all variables
 c----------------------------------------------------------------------
-c      write(*,*) 'initializing variables...'
-
 
       Ni_tot = Ni_tot_0
       Ni_tot_sw = Ni_tot
       Ni_tot_sys = Ni_tot*procnum
-
-c      print *,'Ni_tot_sys, Ni_tot..',Ni_tot_sys,Ni_tot,Ni_tot_sw
 
       if (my_rank .eq. 0) then
       call check_inputs()
       write(*,*) 'Particles per cell....',Ni_tot_sys/(nx*nz)
       write(*,*) ' '
       endif
-c      stop
 
-c      Ni_tot = 6
       mstart = 0
       ndiag = 0
       prev_Etot = 1.0
       nuei = 0.0
 
-c initialize seed for each processor
-c      write(*,*) 't1...',t1
-c      stop
-
       seed = t1 +my_rank*100
       call random_initialize(seed)
-c      write(*,*) 'seed...',seed,my_rank
       call MPI_BARRIER(MPI_COMM_WORLD,ierr)            
-c      write(*,*) 'rand init ...',pad_ranf(),my_rank,seed
-
-
-c      call random_seed
-c      call random_seed(size = seedsize)
-c      allocate(seeder(seedsize))
-c      do n = 0,procnum-1 
-c         if (my_rank .eq. n) then 
-c            call random_seed(get=seeder)
-c            call random_seed(put=seeder)
-c         endif
-c      enddo
-
-
-
+      
       if (.not.(restart)) then
          do 66 i=1,nx
             do 66 j=1,ny
                do 66 k=1,nz
-c                  pf(i,j,k) = nf_init*0.05*kboltz*tempf0
-c                  pf1(i,j,k) = nf_init*0.05*kboltz*tempf0
-c                  nf(i,j,k) = nf_init*0.0
-c                  nf1(i,j,k) = nf_init*0.05  
-c                  nf3(i,j,k) = nf_init*0.05 
-c                  nfp1(i,j,k) = nf_init*0.05  
+c     pf(i,j,k) = nf_init*0.05*kboltz*tempf0
+c     pf1(i,j,k) = nf_init*0.05*kboltz*tempf0
+c     nf(i,j,k) = nf_init*0.0
+c     nf1(i,j,k) = nf_init*0.05  
+c     nf3(i,j,k) = nf_init*0.05 
+c     nfp1(i,j,k) = nf_init*0.05  
                   input_E = 0.0
                   input_p = 0.0
                   input_chex = 0.0
                   input_bill = 0.0
- 66               continue
-         endif
-
-c      do 68 i = 1,nx
-c         do 68 j = 1,ny
-c            do 68 k = 1,nz
-c               uf(i,j,k,1) = -vsw
-c               uf2(i,j,k,1) = -vsw
-c               ufp1(i,j,k,1) = -vsw
-c               ufp2(i,j,k,1) = -vsw
-c 68            continue
-
-c      Ni_tot = 4000000
-
-c      m_arr(1:Ni_tot) = mion
-c      m_arr(Ni_tot+1:) = m_pu*mion  !mass N_2+ = 28.0
-c      mrat(1:Ni_tot) = 1.0
-c      mrat(Ni_tot+1:) = 1.0/m_pu  !mass N_2+ = 28.0
-
-c add 10% heavy ions
-
-c      m_arr(1:Ni_tot*0.1) = mion*16.0
-c      mrat(1:Ni_tot*0.1) = 1.0/16.0
-
-c      beta = (Ni_tot/(nx*dx*ny*dy*nz*delz))/nf_init
-
-c      write(*,*) 'beta...',beta
-  
+ 66            continue
+            endif
+            
       call grd7()
       call grd6_setup(b0,bt,b12,b1,b1p2,nu)
 
       call get_beta()
 
       input_E = 0.0
-c      do i = 1,nx
-c         do j = 1,ny
-c            do k = 1,nz
-c               input_E = input_E + 
-c     x          0.5*dx*dy*dz_grid(k)*nf_init*0.01*mO*(vsw*km_to_m)**2
-c            enddo
-c         enddo
-c      enddo
-
-c      write(*,*) 'SW particle setup maxwl 1...'
-
-c      call sw_part_setup_temp(np,vp,vp1,xp,input_p,up)
-c      call sw_part_setup_maxwl(np,vp,vp1,xp,input_p,up,np_t_flg,
-c     x                         np_b_flg)
-
-c      write(*,*) 'starting part setup...'
 
       call MPI_Barrier(MPI_COMM_WORLD,ierr)
 
@@ -253,19 +187,8 @@ c     x                         np_b_flg)
      x                       vth_bottom, Ni_tot)
 
 
-c      write(*,*) 'finishing part setup...'
-c      call part_setup_maxwl_p(np,vp,vp1,xp,input_p,up,np_t_flg,
-c     x                         np_b_flg)
-c      call part_setup_maxwl_h(np,vp,vp1,xp,input_p,up,np_t_flg,
-c     x                         np_b_flg)
-c      write(*,*) 'SW particle setup complete...',Ni_tot,
-c     x                 mrat(Ni_tot:Ni_tot+1)
-
-
       Ni_tot_sys = Ni_tot*procnum
-c      write(*,*) 'Ni_tot_sys...top and bottom...',Ni_tot_sys,Ni_tot
       write(*,*) 'Particles per cell....',Ni_tot_sys/(nx*nz)
-c      stop
 
       call f_update_tlev(b1,b12,b1p2,bt,b0)
 
@@ -338,6 +261,7 @@ c----------------------------------------------------------------------
 c Initialize diagnostic output files
 c----------------------------------------------------------------------
       if (my_rank .eq. 0) then 
+
          open(110,file=trim(out_dir)//'c.np.dat',status='unknown',
      x        form='unformatted')
          
@@ -410,7 +334,6 @@ c     x         form='unformatted')
      x         form='unformatted')
       endif
       
-      
       if (my_rank .gt. 0) then
          open(305,file=trim(out_dir)//'c.xp_'//trim(filenum(my_rank))
      x        //'.dat',
@@ -430,26 +353,15 @@ c     x          my_rank,'c.xp_'//trim(filenum(my_rank))//'.dat'
 c----------------------------------------------------------------------
 
 
-
-
 c======================================================================
 c  MAIN LOOP!
 c======================================================================
 
-      vp(1,:) = 0.0
-c      xp(1,1) = qx(nx/2)+dx/2
-c      xp(l,2) = qy(ny/2)+dx/2
-c      xp(l,3) = qz(nz/2)+dx/2
-
       do 1 m = mstart+1, nt
 
-c        write(*,*) ' '
          if (my_rank .eq. 0) then
             write(*,*) 'time...', m, m*dt,my_rank
          endif
-c         write(*,*) 'm1...',m_arr(1),mrat(1)
-
-         !Calculate neutral density
 
          !Ionize cloud and calculate ion density
 c         if (Ni_tot .lt. Ni_max) then
@@ -458,11 +370,7 @@ c         call Ionize_pluto_mp(np,vp,vp1,xp,m,input_p,up)
 c         call Ionize_sw_mp(np,vp,vp1,xp,m,input_p,up)
 c         endif
 
-c         write(*,*) 'Ni_tot...',Ni_tot,dNi,my_rank !/beta
-c         write(*,*) ' '
-
          call get_interp_weights(xp)
-c         call get_interp_weights_2(xp)
          call update_np(np)             !np at n+1/2
          call update_up(vp,np,up)       !up at n+1/2
 
@@ -492,9 +400,6 @@ c         call check_min_den_boundary(np,xp,vp,up)
          call update_np(np)             !np at n+1/2
          call update_up(vp,np,up)       !up at n+1/2
 
-c         write(*,*) 'np min k=1...',minval(np(:,:,1))/np_bottom
-
-c         write(*,*) 'np max...',maxval(np(:,:,:))
          
 c**********************************************************************
 c SUBCYCLING LOOP!
@@ -502,6 +407,7 @@ c**********************************************************************
 
          dtsub = dtsub_init
          ntf = ntsub
+
 c         mindt = dtsub_init/50.
 c check time step
 c         write(*,*) 'checking time step...',ntf
@@ -534,8 +440,6 @@ c         enddo
          
 
       do 2 n = 1, ntf
-
-c         write(*,*) 'subcycle step...',n,ntf
 
          !convert main cell covarient bt to main cell contravarient
 c         call cov_to_contra(bt,btmf) 
@@ -605,14 +509,6 @@ c     x                        (pup(1)+puf(1)+peb(1))/input_p(1),
 c     x                        (pup(2)+puf(2)+peb(2))/input_p(2),
 c     x                        (pup(3)+puf(3)+peb(3))/input_p(3)
 
-
-
-
-c         if (my_rank .eq.0) then
-c            write(342) xp(1:100,:)
-c         endif
-            
-c         write(175) b1(nx/2,ny/2,nz/2,:)
 
 c----------------------------------------------------------------------
 c diagnostic output
