@@ -83,7 +83,7 @@ c               nf(i,j,k) = nfr  !/km^3
                   b12(i,j,k,m) = b0(i,j,k,m)
                   b1(i,j,k,m) = b0(i,j,k,m)
                   b1p2(i,j,k,m) = b0(i,j,k,m)
-                  vol = dx*dy*dz_cell(k)*km_to_m**3
+                  vol = dx_cell(i)*dy_cell(j)*dz_cell(k)*km_to_m**3
                   input_Eb = input_Eb + 
      x                      (vol/(2.0*mu0))*(mO_q*b0(i,j,k,m))**2 
 
@@ -148,50 +148,102 @@ c----------------------------------------------------------------------
 c----------------------------------------------------------------------
 c      include 'incurv.h'
 
-      parameter(nrgrd = 50)
+      parameter(nrgrd = 20)
+      real zplus,zminus,xplus, xminus, yplus, yminus
+      real zsf,xsf
 
       rk=(nz/2)! - 35
       rj=ny/2
-      ri=nx-35
+      ri=nx/2
 
-      do 10 i=1,nx
-         qx(i) = i*dx
- 10            continue
+
 
       do 20 j=1,ny
          qy(j) = j*dy
+         dy_grid(j) = dy
  20            continue
 
-c up from release
+
+
+c      do 10 i=1,nx
+c         qx(i) = i*dx
+c         dx_grid(i) = dx
+c 10            continue
+
+c==============stretch x direction=====================================
+               
+      xsf = 0.5
+c up from center
+      do 12 i = ri,ri+nrgrd
+         dx_grid(i) = dx
+ 12   continue
+      do 14 i = ri+nrgrd+1,nx
+         dx_grid(i) = dx +
+     x     xsf*dx*(i-(ri+nrgrd+1))/(nx-(ri+nrgrd+1)) 
+ 14   continue
+
+c down from center
+      do 16 i = ri-nrgrd,ri-1
+         dx_grid(i) = dx
+ 16      continue
+      do 17 i = 1,ri-nrgrd-1
+         ind = ri-nrgrd-i
+         dx_grid(ind) = dx + 
+     x     xsf*dx*(ri-nrgrd-1-ind)/(ri-nrgrd-1)
+ 17   continue
+
+      qx(1) = dx
+      do 18 i=2,nx
+         qx(i) = qx(i-1)+dx_grid(i)
+ 18   continue
+
+      do 19 i = 1,nx-1
+         dx_grid(i) = qx(i+1)-qx(i)
+ 19   continue
+      dx_grid(nx) = dx_grid(nx-1)
+c======================================================================
+
+      print*,'dx...',dx_grid
+
+
+c==============stretch z direction=====================================
+
+      zsf = 0.0  !z stretch factor
+c up from center
       do 32 k = rk,rk+nrgrd
          dz_grid(k) = delz
  32   continue
-c CDIR@ NEXTSCALAR
       do 34 k = rk+nrgrd+1,nz
          dz_grid(k) = delz +
-     x     1.0*delz*(k-(rk+nrgrd+1))/(nz-(rk+nrgrd+1)) 
+     x     zsf*delz*(k-(rk+nrgrd+1))/(nz-(rk+nrgrd+1)) 
 c     x     2.0*sin((k-(rk+nrgrd+1))*0.5*pi/(nz-(rk+nrgrd+1)))**2 
 c                                !dz_grid(k-1) + 0.01*delz 
  34   continue
 
-c down from release
+c down from center
       do 36 k = rk-nrgrd,rk-1
          dz_grid(k) = delz
  36      continue
-c CDIR@ NEXTSCALAR
       do 37 k = 1,rk-nrgrd-1
          ind = rk-nrgrd-k
          dz_grid(ind) = delz + 
-     x     1.0*delz*(rk-nrgrd-1-ind)/(rk-nrgrd-1)
+     x     zsf*delz*(rk-nrgrd-1-ind)/(rk-nrgrd-1)
 c     x     2.0*sin((rk-nrgrd-1-ind)*(-0.5*pi)/(rk-nrgrd-1))**2 
 c                                !dz_grid(ind+1) + 0.01*delz
  37   continue
 
       qz(1) = delz
-      do 39 k=2,nz
+      do 38 k=2,nz
 c         write(*,*) 'dz_grid...',k,dz_grid(k)
          qz(k) = qz(k-1)+dz_grid(k)
+ 38   continue
+
+      do 39 k = 1,nz-1
+         dz_grid(k) = qz(k+1)-qz(k)
  39   continue
+      dz_grid(nz) = dz_grid(nz-1)
+c======================================================================
+
 
       dz_cell(1) = dz_grid(1)
       dz_cell(nz) = dz_grid(nz)
@@ -204,8 +256,32 @@ c         write(*,*) 'dz_grid...',k,dz_grid(k)
          zplus = (qz(k+1) + qz(k))/2.0
          zminus = (qz(k) + qz(k-1))/2.0
          zrat(k) = (qz(k) - zminus)/(zplus - zminus)
-
  40   continue
+
+
+      dx_cell(1) = dx_grid(1)
+      dx_cell(nx) = dx_grid(nx)
+      xrat(1) = 0.5
+      xrat(nx) = 0.5
+      do 50 i=2,nx-1
+         dx_cell(i) = ((qx(i+1) + qx(i))/2.0) -
+     x                ((qx(i) + qx(i-1))/2.0)
+         xplus = (qx(i+1) + qx(i))/2.0
+         xminus = (qx(i) + qx(i-1))/2.0
+         xrat(i) = (qx(i) - xminus)/(xplus - xminus)
+ 50   continue
+
+      dy_cell(1) = dy_grid(1)
+      dy_cell(ny) = dy_grid(ny)
+      yrat(1) = 0.5
+      yrat(ny) = 0.5
+      do 60 j=2,ny-1
+         dy_cell(j) = ((qy(j+1) + qy(j))/2.0) -
+     x                ((qy(j) + qy(j-1))/2.0)
+         yplus = (qy(j+1) + qy(j))/2.0
+         yminus = (qy(j) + qy(j-1))/2.0
+         yrat(j) = (qy(j) - yminus)/(yplus - yminus)
+ 60   continue
 
 c      call assign('assign -F system -N ultrix f:' //'c.coord.dat')
       open(40,file=trim(out_dir)//'c.coord.dat',status='unknown',

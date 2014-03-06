@@ -1388,17 +1388,8 @@ c----------------------------------------------------------------------
 
       do 10 l=1,Ni_tot
 
-c         i = floor(xp(l,1)/dx) 
-c         ijkp(l,1) = i
-
-         i=0
- 16      continue
-         i = i + 1
-         if (xp(l,1) .gt. qx(i)) go to 16 !find i on non-uniform 
-         i = i-1
-         ijkp(l,1)= i
-
-
+         i = floor(xp(l,1)/dx) 
+         ijkp(l,1) = i
          j = floor(xp(l,2)/dy) 
          ijkp(l,2) = j
 
@@ -1409,8 +1400,7 @@ c         ijkp(l,1) = i
          k = k-1
          ijkp(l,3)= k
 
-c         vol = 1.0/(dx*dy*(qz(k+1)-qz(k)))
-         vol = 1.0/((qx(i+1)-qx(i))*(qy(j+1)-qy(j))*(qz(k+1)-qz(k)))
+         vol = 1.0/(dx*dy*(qz(k+1)-qz(k)))
          x1=abs(xp(l,1)-qx(i))
          x2=abs(xp(l,1)-qx(i+1))
          y1=abs(xp(l,2)-qy(j))
@@ -1474,10 +1464,10 @@ c         if (ip .ge. nx) ip = 2      !periodic boundary conditions
 c         if (jp .ge. ny) jp = 2      !periodic boundary conditions
 c         if (kp .ge. nz) kp = 2      !periodic boundary conditions
 
-c         volb = 1.0/(dx*dy*(qz(k+1)-qz(k))*beta)
-         volb = 1.0/(dx_grid(i)*dy_grid(j)*dz_grid(k)*beta)
-c         volb = 1.0/((qx(ip)-qx(i))*(qy(jp)-qy(j))*(qz(kp)-qz(k))*beta)
+         volb = 1.0/(dx*dy*(qz(k+1)-qz(k))*beta)
+c         volb = 1.0/(dx_grid(i)*dy_grid(j)*dz_grid(k)*beta)
 c         volb = dx*dy*dz_cell(k)*beta
+
 
          np(i,j,k) = np(i,j,k) + wght(l,1)*volb
          np(ip,j,k) = np(ip,j,k) + wght(l,2)*volb
@@ -1550,18 +1540,18 @@ c         if (ip .ge. nx) ip = 2      !periodic boundary conditions
 c         if (jp .ge. ny) jp = 2      !periodic boundary conditions
 c         if (kp .ge. nz) kp = 2      !periodic boundary conditions
 
-c         volb = dx*dy*(qz(k+1)-qz(k))*beta
+         volb = dx*dy*(qz(k+1)-qz(k))*beta
 c         volb = dx*dy*dz_cell(k)*beta
-         volb = (qx(ip)-qx(i))*(qy(jp)-qy(j))*(qz(kp)-qz(k))*beta
+c         volb = 1.0/(dx_grid(i)*dy_grid(j)*dz_grid(k)*beta)
 
-         mnp(i,j,k) = mnp(i,j,k) + (wght(l,1)/mrat(l))/volb
-         mnp(ip,j,k) = mnp(ip,j,k) + (wght(l,2)/mrat(l))/volb
-         mnp(i,j,kp) = mnp(i,j,kp) + (wght(l,3)/mrat(l))/volb
-         mnp(ip,j,kp) = mnp(ip,j,kp) + (wght(l,4)/mrat(l))/volb
-         mnp(i,jp,k) = mnp(i,jp,k) + (wght(l,5)/mrat(l))/volb
-         mnp(ip,jp,k) = mnp(ip,jp,k) + (wght(l,6)/mrat(l))/volb
-         mnp(i,jp,kp) = mnp(i,jp,kp) + (wght(l,7)/mrat(l))/volb
-         mnp(ip,jp,kp) = mnp(ip,jp,kp) + (wght(l,8)/mrat(l))/volb
+         mnp(i,j,k) = mnp(i,j,k) + (wght(l,1)/mrat(l))*volb
+         mnp(ip,j,k) = mnp(ip,j,k) + (wght(l,2)/mrat(l))*volb
+         mnp(i,j,kp) = mnp(i,j,kp) + (wght(l,3)/mrat(l))*volb
+         mnp(ip,j,kp) = mnp(ip,j,kp) + (wght(l,4)/mrat(l))*volb
+         mnp(i,jp,k) = mnp(i,jp,k) + (wght(l,5)/mrat(l))*volb
+         mnp(ip,jp,k) = mnp(ip,jp,k) + (wght(l,6)/mrat(l))*volb
+         mnp(i,jp,kp) = mnp(i,jp,kp) + (wght(l,7)/mrat(l))*volb
+         mnp(ip,jp,kp) = mnp(ip,jp,kp) + (wght(l,8)/mrat(l))*volb
 
  20      continue
 
@@ -1685,8 +1675,7 @@ c         if (jp .ge. ny) jp = 2      !periodic boundary conditions
 c         if (kp .ge. nz) kp = 2      !periodic boundary conditions
 
 
-c         volb = dx*dy*(qz(kp)-qz(k))*beta
-         volb = (qx(ip)-qx(i))*(qy(jp)-qy(j))*(qz(kp)-qz(k))*beta
+         volb = dx*dy*(qz(kp)-qz(k))*beta
 c         volb = dx_grid(i)*dy_grid(j)*dz_grid(k)*beta
 c         volb = dx*dy*dz_cell(k)*beta
       
@@ -1882,18 +1871,17 @@ c         if (jp .ge. ny) jp = 2      !periodic boundary conditions
 c         if (kp .ge. nz) kp = 2      !periodic boundary conditions
 
 c         volb = dx*dy*(qz(k+1)-qz(k))*beta
-c         volb = dx*dy*dz_cell(k)*beta
-         volb = (qx(ip)-qx(i))*(qy(jp)-qy(j))*(qz(kp)-qz(k))*beta
+         volb = 1.0/(dx*dy*dz_cell(k)*beta)
+c         volb = 1.0/(dx_grid(i)*dy_grid(j)*dz_grid(k)*beta)
 
-
-         np(i,j,k) = np(i,j,k) + flg(l)*wght(l,1)/volb
-         np(ip,j,k) = np(ip,j,k) + flg(l)*wght(l,2)/volb
-         np(i,j,kp) = np(i,j,kp) + flg(l)*wght(l,3)/volb
-         np(ip,j,kp) = np(ip,j,kp) + flg(l)*wght(l,4)/volb
-         np(i,jp,k) = np(i,jp,k) + flg(l)*wght(l,5)/volb
-         np(ip,jp,k) = np(ip,jp,k) + flg(l)*wght(l,6)/volb
-         np(i,jp,kp) = np(i,jp,kp) + flg(l)*wght(l,7)/volb
-         np(ip,jp,kp) = np(ip,jp,kp) + flg(l)*wght(l,8)/volb
+         np(i,j,k) = np(i,j,k) + flg(l)*wght(l,1)*volb
+         np(ip,j,k) = np(ip,j,k) + flg(l)*wght(l,2)*volb
+         np(i,j,kp) = np(i,j,kp) + flg(l)*wght(l,3)*volb
+         np(ip,j,kp) = np(ip,j,kp) + flg(l)*wght(l,4)*volb
+         np(i,jp,k) = np(i,jp,k) + flg(l)*wght(l,5)*volb
+         np(ip,jp,k) = np(ip,jp,k) + flg(l)*wght(l,6)*volb
+         np(i,jp,kp) = np(i,jp,kp) + flg(l)*wght(l,7)*volb
+         np(ip,jp,kp) = np(ip,jp,kp) + flg(l)*wght(l,8)*volb
 
  20      continue
 
@@ -1958,9 +1946,8 @@ c      endwhere
          jp = j+1
          kp = k+1
 
-c         volb = dx*dy*dz_cell(k)*beta
-         volb = (qx(ip)-qx(i))*(qy(jp)-qy(j))*(qz(kp)-qz(k))*beta
-      
+         volb = dx*dy*dz_cell(k)*beta
+c         volb = dx_grid(i)*dy_grid(j)*dz_grid(k)*beta      
          if (np(i,j,k) .gt. 0.0) then
          nvolb = np(i,j,k)*volb
          ct(i,j,k,1) = ct(i,j,k,1) + flg(l)*vp(l,1)*wght(l,1)/nvolb
@@ -2113,8 +2100,9 @@ c      enddo
          jp = j+1
          kp = k+1
 
-c         volb = dx*dy*dz_cell(k)*beta
-         volb = (qx(ip)-qx(i))*(qy(jp)-qy(j))*(qz(kp)-qz(k))*beta
+
+         volb = dx*dy*dz_cell(k)*beta
+c         volb = dx_grid(i)*dy_grid(j)*dz_grid(k)*beta
       
          if (np(i,j,k) .gt. 0.0) then
          nvolb = np(i,j,k)*volb
@@ -2224,8 +2212,7 @@ c use for periodic boundary conditions
          jp = j+1
          kp = k+1
 
-c         volb = dx*dy*dz_cell(k)*beta
-         volb = (qx(ip)-qx(i))*(qy(jp)-qy(j))*(qz(kp)-qz(k))*beta
+         volb = dx*dy*dz_cell(k)*beta
       
          if (np(i,j,k) .gt. 0.0) then
          nvolb = np(i,j,k)*volb

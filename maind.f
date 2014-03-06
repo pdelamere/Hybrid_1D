@@ -144,6 +144,7 @@ c----------------------------------------------------------------------
       write(*,*) 'Particles per cell....',Ni_tot_sys/(nx*nz)
       write(*,*) ' '
       endif
+      
 
       mstart = 0
       ndiag = 0
@@ -526,9 +527,6 @@ c            write(320) np(ri-20,rj,rk),np(ri-40,rj,rk),
 c     x                 np(ri-40,rj,rk+50),np(ri+5,rj,rk)
          endif
 
-         ainput_E = input_E
-         abndry_Eflux = bndry_Eflux
-
          ndiag = ndiag + 1
          if (ndiag .eq. nout) then
 
@@ -536,7 +534,7 @@ c            call separate_np(np_t,np_t_flg)
 c            call separate_np(np_b,np_b_flg)
 c            call separate_up(vp,np,np_t_flg,up_t)
 c            call separate_up(vp,np,np_b_flg,up_b)
-            call get_np3(np,np3)
+c            call get_np3(np,np3)
             call get_temperature(xp,vp,np,temp_p)
             call update_rho(mnp)
             call update_mixed
@@ -594,10 +592,6 @@ c               write(315) mrat
                ndiag = 0
             endif
          endif
-
-         input_E = ainput_E
-         bndry_Eflux = abndry_Eflux
-         
 
 c----------------------------------------------------------------------
 

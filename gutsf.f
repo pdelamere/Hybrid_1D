@@ -106,7 +106,7 @@ c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
-      SUBROUTINE curlB(b1,np,aj)
+      SUBROUTINE curlB2(b1,np,aj)
 c Calculates curl B / n*alpha.  The resulting "current" is called aj
 c which is used in several other places in the code.  This curl is 
 c performed on the main cell where B is covarient.  The resulting
@@ -170,6 +170,77 @@ c     x                 + 0.5*(np(i,j,k)+np(i,j,kp))
 c      call periodic(aj)
 
       return
+      end SUBROUTINE curlB2
+c----------------------------------------------------------------------
+
+
+c----------------------------------------------------------------------
+      SUBROUTINE curlB(b1,np,aj)
+c Calculates curl B / n*alpha.  The resulting "current" is called aj
+c which is used in several other places in the code.  This curl is 
+c performed on the main cell where B is covarient.  The resulting
+c current is main cell contravarient.  Note that dz_cell is used for
+c the cell dimensions since dz_grid is not equal to dz_cell on non-
+c uniform grid.
+c----------------------------------------------------------------------
+CVD$R VECTOR
+      !include 'incurv.h'
+
+      real b1(nx,ny,nz,3),
+c     x     nf(nx,ny,nz),
+     x     np(nx,ny,nz),
+     x     aj(nx,ny,nz,3)
+
+      real curl_B(3)      !dummy for holding curl vector
+      real ntot(3)        !total density, np + nf
+
+c      call periodic_scalar(np)
+c      call periodic_scalar(nf)
+      call periodic(b1)
+cc     call fix_normal_b(b1)
+
+      do 10 k=2,nz-1   
+         do 10 j=2,ny-1
+            do 10 i=2,nx-1
+
+               ip = i+1
+               jp = j+1
+               kp = k+1
+
+c               if (ip .gt. nx) then ip = nx
+c               if (jp .gt. ny) then jp = ny
+c               if (kp .gt. nz) then kp = nz
+
+c               ntot(1) = 0.5*(nf(i,j,k)+nf(ip,j,k))
+c     x                 + 0.5*(np(i,j,k)+np(ip,j,k))
+c               ntot(2) = 0.5*(nf(i,j,k)+nf(i,jp,k))
+c     x                 + 0.5*(np(i,j,k)+np(i,jp,k))
+c               ntot(3) = 0.5*(nf(i,j,k)+nf(i,j,kp))
+c     x                 + 0.5*(np(i,j,k)+np(i,j,kp))
+
+
+               ntot(1) = 0.5*(np(i,j,k)+np(ip,j,k))
+               ntot(2) = 0.5*(np(i,j,k)+np(i,jp,k))
+               ntot(3) = 0.5*(np(i,j,k)+np(i,j,kp))
+
+               curl_B(1) = (b1(i,j,k,3) - 
+     x              b1(i,j-1,k,3))/dy_cell(j) +
+     x              (b1(i,j,k-1,2) - b1(i,j,k,2))/dz_cell(k)
+               curl_B(2) = (b1(i,j,k,1) - 
+     x              b1(i,j,k-1,1))/dz_cell(k) +
+     x              (b1(i-1,j,k,3) - b1(i,j,k,3))/dx_cell(i)
+               curl_B(3) = (b1(i,j,k,2) - 
+     x              b1(i-1,j,k,2))/dx_cell(i) + 
+     x              (b1(i,j-1,k,1) - b1(i,j,k,1))/dy_cell(j)
+
+
+               do 10 m=1,3
+                  aj(i,j,k,m) = curl_B(m)/(ntot(m)*alpha)
+ 10            continue
+
+c      call periodic(aj)
+
+      return
       end SUBROUTINE curlB
 c----------------------------------------------------------------------
 
@@ -192,16 +263,42 @@ c      call periodic(E)
          do 10 j=2,ny-1
             do 10 k=2,nz-1
 
-               lx = qx(i+1) - qx(i)
-               ly = qy(j+1) - qy(j)
-               lz = qz(k+1) - qz(k)
+c               lx = qx(i+1) - qx(i)
+c               ly = qy(j+1) - qy(j)
+c               lz = qz(k+1) - qz(k)
 
-               curl_E(i,j,k,1) =  (E(i,j+1,k,3)/ly) - (E(i,j,k,3)/ly)
-     x                       + (E(i,j,k,2)/lz) - (E(i,j,k+1,2)/lz)
-               curl_E(i,j,k,2) =  (E(i,j,k,3)/lx) - (E(i+1,j,k,3)/lx)
-     x                       + (E(i,j,k+1,1)/lz) - (E(i,j,k,1)/lz)
-               curl_E(i,j,k,3) =  (E(i,j,k,1)/ly) - (E(i,j+1,k,1)/ly)
-     x                       + (E(i+1,j,k,2)/lx) - (E(i,j,k,2)/lx)
+c               lx = dx_grid(i)
+c               ly = dy_grid(j)
+c               lz = dz_grid(k)
+
+c               curl_E(i,j,k,1) =  (E(i,j+1,k,3)/dy_grid(j)) - 
+c     x              (E(i,j,k,3)/dy_grid(j))
+c     x              + (E(i,j,k,2)/dz_grid(k)) - 
+c     x              (E(i,j,k+1,2)/dz_grid(k))
+c               curl_E(i,j,k,2) =  (E(i,j,k,3)/dx_grid(i)) - 
+c     x              (E(i+1,j,k,3)/dx_grid(i))
+c     x              + (E(i,j,k+1,1)/dz_grid(k)) - 
+c     x              (E(i,j,k,1)/dz_grid(k))
+c               curl_E(i,j,k,3) =  (E(i,j,k,1)/dy_grid(j)) - 
+c     x              (E(i,j+1,k,1)/dy_grid(j))
+c     x              + (E(i+1,j,k,2)/dx_grid(i)) - 
+c     x              (E(i,j,k,2)/dx_grid(i))
+
+
+               curl_E(i,j,k,1) =  (E(i,j+1,k,3)- 
+     x              E(i,j,k,3))/dy_grid(j)
+     x              + (E(i,j,k,2)- 
+     x              E(i,j,k+1,2))/dz_grid(k)
+               curl_E(i,j,k,2) =  (E(i,j,k,3) - 
+     x              E(i+1,j,k,3))/dx_grid(i)
+     x              + (E(i,j,k+1,1) - 
+     x              E(i,j,k,1))/dz_grid(k)
+               curl_E(i,j,k,3) =  (E(i,j,k,1) - 
+     x              E(i,j+1,k,1))/dy_grid(j)
+     x              + (E(i+1,j,k,2) - 
+     x              E(i,j,k,2))/dx_grid(i)
+
+
 
  10          continue
 

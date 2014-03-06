@@ -29,19 +29,28 @@ c               kp = k+1
                jm = j-1
                km = k-1
 
-
-               b2 = 0.5*(bt(i,j,k,1)+bt(i,jm,k,1))
-               b1 = 0.5*(bt(i,j,km,1)+bt(i,jm,km,1))
+c               b2 = 0.5*(bt(i,j,k,1)+bt(i,jm,k,1))
+c               b1 = 0.5*(bt(i,j,km,1)+bt(i,jm,km,1))
+               b2 = bt(i,jm,k,1) + yrat(j)*(bt(i,j,k,1)-bt(i,jm,k,1))
+               b1 = bt(i,jm,km,1) + yrat(j)*(bt(i,j,km,1)-bt(i,jm,km,1))
  
                btc(i,j,k,1) = b1 + zrat(k)*(b2-b1)
 
-               b2 = 0.5*(bt(i,j,k,2)+bt(im,j,k,2))
-               b1 = 0.5*(bt(i,j,km,2)+bt(im,j,km,2))
+c               b2 = 0.5*(bt(i,j,k,2)+bt(im,j,k,2))
+c               b1 = 0.5*(bt(i,j,km,2)+bt(im,j,km,2))
  
+               b2 = bt(im,j,k,2) + xrat(i)*(bt(i,j,k,2)-bt(im,j,k,2))
+               b1 = bt(im,j,km,2) + xrat(i)*(bt(i,j,km,2)-bt(im,j,km,2))
+
                btc(i,j,k,2) = b1 + zrat(k)*(b2-b1)
 
-               btc(i,j,k,3) = 0.25*(bt(i,j,k,3)+bt(im,j,k,3)+ 
-     x              bt(im,jm,k,3) + bt(i,jm,k,3))
+               b2 = bt(i,jm,k,3) + yrat(j)*(bt(i,j,k,3)-bt(i,jm,k,3))
+               b1 = bt(im,jm,k,3) + yrat(j)*(bt(im,j,k,3)-bt(im,jm,k,3))
+
+               btc(i,j,k,3) = b1 + xrat(i)*(b2-b1)
+
+c               btc(i,j,k,3) = 0.25*(bt(i,j,k,3)+bt(im,j,k,3)+ 
+c     x              bt(im,jm,k,3) + bt(i,jm,k,3))
 
       
  10         continue
@@ -80,8 +89,13 @@ c               if (im .lt. 1) then im = nx-1
 c               if (jm .lt. 1) then jm = ny-1
 c               if (km .lt. 1) then km = nz-1
 
-               vc(i,j,k,1) = 0.5*(v(i,j,k,1) + v(im,j,k,1))
-               vc(i,j,k,2) = 0.5*(v(i,j,k,2) + v(i,jm,k,2))
+c               vc(i,j,k,1) = 0.5*(v(i,j,k,1) + v(im,j,k,1))
+               vc(i,j,k,1) = xrat(i)*(v(i,j,k,1) - v(im,j,k,1)) + 
+     x                                v(im,j,k,1)
+
+c               vc(i,j,k,2) = 0.5*(v(i,j,k,2) + v(i,jm,k,2))
+               vc(i,j,k,2) = yrat(j)*(v(i,j,k,2) - v(i,jm,k,2)) + 
+     x                                v(i,jm,k,2)
                vc(i,j,k,3) = zrat(k)*(v(i,j,k,3) - v(i,j,km,3)) + 
      x                                v(i,j,km,3)
  10            continue

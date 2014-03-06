@@ -234,7 +234,7 @@ c      include 'incurv.h'
                if (ip .eq. nx) then ip = nx-1
                if (jp .eq. ny) then jp = ny-1
                if (kp .eq. nz) then kp = nz-1
-               vol = dx*dy*dz_cell(k)
+               vol = dx_cell(i)*dy_cell(j)*dz_cell(k)
                npave(1) = 0.5*(np(i,j,k) + np(ip,j,k))
                npave(2) = 0.5*(np(i,j,k) + np(i,jp,k))
                npave(3) = 0.5*(np(i,j,k) + np(i,j,kp))
