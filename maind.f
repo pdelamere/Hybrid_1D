@@ -15,6 +15,7 @@ c----------------------------------------------------------------------
       USE gutsf
       USE part_init
       USE grid_interp
+      USE chem_rates
 c      include 'dimensions.h'
 c      include 'incurv.h'
 
@@ -368,7 +369,7 @@ c======================================================================
 c         if (Ni_tot .lt. Ni_max) then
 cc         call Ionize_pluto(np,vp,vp1,xp,m,input_p,up)
 c         call Ionize_pluto_mp(np,vp,vp1,xp,m,input_p,up)
-c         call Ionize_sw_mp(np,vp,vp1,xp,m,input_p,up)
+         call Ionize_sw_mp(np,vp,vp1,xp,m,input_p,up)
 c         endif
 
          call get_interp_weights(xp)
@@ -408,44 +409,15 @@ c**********************************************************************
 
          dtsub = dtsub_init
          ntf = ntsub
-
-c         mindt = dtsub_init/50.
-c check time step
-c         write(*,*) 'checking time step...',ntf
-c         do i = 1,nx
-c            do j = 1,ny
-c               do k = 1,nz
-c                  ak = 2./dx
-c                  btot = sqrt(bt(i,j,k,1)**2 + bt(i,j,k,2)**2 + 
-c     x                 bt(i,j,k,3)**2)
-c                  a1 = ak**2*Btot/(alpha*(nf(i,j,k)+np(i,j,k)))
-c                  a2 = (ak*Btot)**2/(alpha*(nf(i,j,k)+np(i,j,k)))
-c                  womega = 0.5*(a1 + sqrt(a1**2 + 4*a2))
-c                  phi = womega/ak
-c                  deltat = dx/phi
-c                  if(deltat .le. 2.0*dtsub) then 
-c           write(*,*) 'time stepping error...',deltat,nf(i,j,k)
-c                     if (mindt .gt. deltat) then
-c                        deltat = mindt
-c                        write(*,*) 'mindt...',mindt
-c                     endif
-c                     do while (2.0*dtsub .gt. deltat)
-c                        dtsub = dtsub/2.0
-c                        ntf = ntf*2.0
-c      write(*,*) 'Changing subcycle time step...',dtsub,deltat,ntf
-c                     enddo
-c                  endif
-c               enddo
-c            enddo
-c         enddo
+          
+         call check_time_step(bt,np)
          
-
-      do 2 n = 1, ntf
+         do 2 n = 1, ntf
 
          !convert main cell covarient bt to main cell contravarient
 c         call cov_to_contra(bt,btmf) 
-         call edge_to_center(bt,btc)
-         call curlB(bt,np,aj)     
+            call edge_to_center(bt,btc)
+            call curlB(bt,np,aj)     
 
          !update fluid velocity, uf 
 
@@ -472,15 +444,15 @@ c         call trans_pf_LaxWend2(pf,pf1,ufp1)
 c         call predict_B(b1,b12,b1p2,bt,btmf,E,aj,up,uf,uf2,np,nf,nu,
 c     x                  gradP) 
 
-         call predict_B(b0,b1,b12,b1p2,bt,btc,E,aj,up,np,nu) 
+            call predict_B(b0,b1,b12,b1p2,bt,btc,E,aj,up,np,nu) 
 
 c         call correct_nf(nf,nf1,ufp1)
 
 c         call correct_B(b0,b1,b1p2,E,aj,up,uf,np,nfp1,nu,gradP,bdp)
-         call correct_B(b0,b1,b1p2,E,aj,up,np,nu)
+            call correct_B(b0,b1,b1p2,E,aj,up,np,nu)
 
 c         call f_update_tlev(uf,uf2,b1,b12,b1p2,bt,b0,bdp)
-         call f_update_tlev(b1,b12,b1p2,bt,b0)
+            call f_update_tlev(b1,b12,b1p2,bt,b0)
 
 
 c         call Momentum_diag(up,uf,np,nf,E,b1,pup,puf,peb,input_p)
@@ -491,10 +463,10 @@ c         write(192) surf_tot, graduu_tot, ugradu_tot
 
 
 
- 2     continue
+ 2       continue
 c**********************************************************************
 
-         call move_ion_half(xp,vp,vp1,input_p)  !final ion move to n+1
+         call move_ion_half(xp,vp,vp1,input_p) !final ion move to n+1
 c         call check_min_den_boundary(np,xp,vp,up)
 
 c         call check_min_den(np,xp,vp,vp1,up,bt)

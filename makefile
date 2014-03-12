@@ -3,7 +3,7 @@ F77 = mpif90 -i4 -real-size 32 -O4
 FILES =  dimensions.f global.f grid_interp.f maind.f gutsf.f gutsp.f misc.f boundary.f part_init.f initial.f inputs.f chem_rates.f
 INCLUDE = incurv.h para.h
 OBJECTS = dimensions.o inputs.o global.o boundary.o initial.o grid_interp.o gutsf.o misc.o gutsp.o part_init.o chem_rates.o maind.o
-MODS = dimensions.mod inputs.mod global.mod boundary.mod initial.mod grid_interp.mod gutsf.mod misc.mod  gutsp.mod  part_init.mod chem_rates.mod
+MODS = dimensions.mod global.mod inputs.mod boundary.mod initial.mod grid_interp.mod gutsf.mod misc.mod  gutsp.mod  part_init.mod chem_rates.mod
 
 hybrid:	$(OBJECTS) 
 	$(F77) -o hybrid $(OBJECTS) 

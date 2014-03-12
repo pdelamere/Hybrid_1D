@@ -590,14 +590,14 @@ c         ijkp(l,1) = floor(xp(l,1)/dx)
          
 c         vth = vth_bottom
 
-         vx = vth*sqrt(-alog(pad_ranf()))*cos(PI*pad_ranf())
+         vx = vsw+vth*sqrt(-alog(pad_ranf()))*cos(PI*pad_ranf())
          vy = vth*sqrt(-alog(pad_ranf()))*cos(PI*pad_ranf())
          vz = vth*sqrt(-alog(pad_ranf()))*cos(PI*pad_ranf())
 
          ii = ijkp(l,1)
          kk = ijkp(l,3)
-         vp(l,1) = 57.0*exp(-(xp(l,3)-qz(nz/2))**2/(10.*delz)**2)
-     x        *exp(-(xp(l,1)-qx(nx/2))**2/(10.*dx)**2)+vx
+         vp(l,1) = -0.0*(exp(-(xp(l,3)-qz(nz/2))**2/(10.*delz)**2)
+     x        *exp(-(xp(l,1)-qx(nx/2))**2/(10.*dx)**2))+vx
          vp(l,2) = vy 
          vp(l,3) = vz 
 

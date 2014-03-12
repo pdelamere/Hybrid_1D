@@ -1,7 +1,9 @@
       MODULE chem_rates
 
       USE global
+      USE inputs
       USE gutsp
+      
 
       contains
 
@@ -506,8 +508,6 @@ c Ionizes the neutral cloud with a 28 s time constant and fill particle
 c arrays, np, vp, up (ion particle density, velocity, 
 c and bulk velocity).   
 c----------------------------------------------------------------------
-CVD$R VECTOR
-      !!include 'incurv.h'
 
       real np(nx,ny,nz),
      x     vp(Ni_max,3),
@@ -550,40 +550,58 @@ c      real Nofr(200)        !number of neutrals as func of r
 
       do l = l1,l1+dNi
          theta = pad_ranf()*2*PI
-         vp(l,1) = vsw+57.0*cos(theta) !+dvx
-         vp(l,2) = 57.0*sin(theta) !+dvz 
+         vp(l,1) = 0.0 !vsw+57.0*cos(theta) !+dvx
+         vp(l,2) = 0.0 !57.0*sin(theta) !+dvz 
          vp(l,3) = 0.0
 
 c         vp(l,1) = 0.0
 c         vp(l,2) = 0.0
 c         vp(l,3) = 0.0                        
 
-         xp(l,1) = qx(1)+(1.0-pad_ranf())*(qx(nx-1)-qx(1))
+c         xp(l,1) = qx(1)+(1.0-pad_ranf())*(qx(nx-1)-qx(1))
+         xp(l,1) = qx(nx/2-10)+(1.0-pad_ranf())*(20*dx)
          xp(l,2) = qy(1)+(1.0-pad_ranf())*(qy(ny-1)-qy(1))
-         xp(l,3) = qz(nz/2-10)+(1.0-pad_ranf())*(qz(20)-qz(1))
+         xp(l,3) = qz(nz/2-10)+(1.0-pad_ranf())*(20*delz)
+
+         i=0
+ 31      continue
+         i = i + 1
+         if (xp(l,1) .gt. qx(i)) go to 31 !find i on non-uniform 
+         i = i-1
+         ijkp(l,1)= i
 
 
-         ijkp(l,1) = nint(xp(l,1)/dx) !particle grid location index
-         ijkp(l,2) = nint(xp(l,2)/dy)
-
-         kk=1
-         do 15 while((xp(l,3).gt.qz(kk)).and.(kk .le. nz)) !find k
-            ijkp(l,3) = kk      !grid
-            kk=kk+1
- 15      continue
-         kk=ijkp(l,3)
-         if (xp(l,3) .gt. (qz(kk)+(dz_grid(kk)/2))) then
-            ijkp(l,3) = kk+1
-         endif
+         ijkp(l,2) = floor(xp(l,2)/dy) 
          
+         k=0
+ 30      continue
+         k = k + 1
+         if (xp(l,3) .gt. qz(k)) go to 30 !find k on non-uniform 
+         k = k-1
+         ijkp(l,3)= k
+
+
+c         ijkp(l,1) = nint(xp(l,1)/dx) !particle grid location index
+c         ijkp(l,2) = nint(xp(l,2)/dy)
+
+c         kk=1
+c         do 15 while((xp(l,3).gt.qz(kk)).and.(kk .le. nz)) !find k
+c            ijkp(l,3) = kk      !grid
+c            kk=kk+1
+c 15      continue
+c         kk=ijkp(l,3)
+c         if (xp(l,3) .gt. (qz(kk)+(dz_grid(kk)/2))) then
+c            ijkp(l,3) = kk+1
+c         endif
+
          if (pad_ranf() .lt. 0.5) then 
-            mrat(l) = 16.0/m_pu
+            mrat(l) = ion_amu/m_pu
             m_arr(l) = 1.67e-27*m_pu
          endif
 
 
          if (pad_ranf() .ge. 0.5) then 
-            mrat(l) = 16.0/48.0
+            mrat(l) = ion_amu/48.0
             m_arr(l) = 1.67e-27*48.0
          endif
 
@@ -601,10 +619,7 @@ c         vp(l,3) = 0.0
       write(*,*) 'total new ions....',my_rank,cnt,dNi         
       call MPI_BARRIER(MPI_COMM_WORLD,ierr)
 
-c      stop
-
       Ni_tot = Ni_tot + dNi
-
 
       do 60 l = l1,Ni_tot
          if ((ijkp(l,1) .gt. nx) .or. (ijkp(l,2) .gt. ny) .or. 

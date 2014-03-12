@@ -172,7 +172,7 @@ c 10            continue
 
 c==============stretch x direction=====================================
                
-      xsf = 0.5
+      xsf = 0.0
 c up from center
       do 12 i = ri,ri+nrgrd
          dx_grid(i) = dx
@@ -203,7 +203,7 @@ c down from center
       dx_grid(nx) = dx_grid(nx-1)
 c======================================================================
 
-      print*,'dx...',dx_grid
+c      print*,'dx...',dx_grid
 
 
 c==============stretch z direction=====================================

@@ -52,7 +52,7 @@ c misc constants
       PARAMETER (mu0 = pi*4.0e-7)    !magnetic permeability of free space
       PARAMETER (epsilon = 8.85e-12) !dielectric constant
 
-      PARAMETER (m_pu = 64.0)
+c      PARAMETER (m_pu = 64.0)
 
       PARAMETER (km_to_m = 1e3)       !km to meters conversion
       PARAMETER (kboltz = 1.38e-29)   !kg km^2 / s^2 / K
@@ -84,8 +84,8 @@ c----------------------------------------------------------------
       write(*,*) 'b0_init...........',b0_init
       read(100,*) ion_amu
       write(*,*) 'amu...............',ion_amu
-      read(100,*) mpu
-      write(*,*) 'mpu...............',mpu
+      read(100,*) m_pu
+      write(*,*) 'm_pu..............',m_pu
       read(100,*) nf_init
       write(*,*) 'nf_init...........',nf_init
       read(100,*) dt_frac
@@ -229,5 +229,6 @@ c      write(*,*) 'Particles per cell....',Ni_tot_sys/(nx*nz)
       end subroutine check_inputs
 c----------------------------------------------------------------      
 
-      
+
+
       END MODULE
