@@ -285,6 +285,7 @@ c      write(*,*) 'Ni_tot after wake....',Ni_tot
       end SUBROUTINE Ionize_pluto
 c----------------------------------------------------------------------
 
+
 c----------------------------------------------------------------------
       SUBROUTINE Ionize_pluto_mp(np,vp,vp1,xp,m_tstep,input_p,up)
 c Ionizes the neutral cloud with a 28 s time constant and fill particle
@@ -502,6 +503,7 @@ c      write(*,*) 'Ni_tot after wake....',Ni_tot
       end SUBROUTINE Ionize_pluto_mp
 c----------------------------------------------------------------------
 
+
 c----------------------------------------------------------------------
       SUBROUTINE Ionize_sw_mp(np,vp,vp1,xp,m_tstep,input_p,up)
 c Ionizes the neutral cloud with a 28 s time constant and fill particle
@@ -544,8 +546,9 @@ c      real Nofr(200)        !number of neutrals as func of r
       real ddni
       integer cnt, l1
 
+      call Neut_Center(cx,cy,cz)
 
-      dNi = 1.0
+      dNi = 10.0
       l1 = Ni_tot+1
 
       do l = l1,l1+dNi
@@ -559,9 +562,23 @@ c         vp(l,2) = 0.0
 c         vp(l,3) = 0.0                        
 
 c         xp(l,1) = qx(1)+(1.0-pad_ranf())*(qx(nx-1)-qx(1))
-         xp(l,1) = qx(nx/2-10)+(1.0-pad_ranf())*(20*dx)
+
+
+         flg = 0
+         do 10 while (flg .eq. 0) 
+         xp(l,1) = qx(nx/2-40)+(1.0-pad_ranf())*(80*dx)
          xp(l,2) = qy(1)+(1.0-pad_ranf())*(qy(ny-1)-qy(1))
-         xp(l,3) = qz(nz/2-10)+(1.0-pad_ranf())*(20*delz)
+         xp(l,3) = qz(nz/2-40)+(1.0-pad_ranf())*(80*delz)
+
+         r = sqrt((xp(l,1)-cx)**2 + (xp(l,2)-cy)**2 + (xp(l,3)-cz)**2)
+
+         rnd = pad_ranf()
+         if (exp(-r**2/(20*dx)**2) .gt. rnd) then
+            flg = 1
+         endif
+
+         
+ 10      enddo
 
          i=0
  31      continue

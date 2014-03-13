@@ -493,22 +493,20 @@ c         endif
          endif
 c         ijkp(l,1) = nint(xp(l,1)/dx)
 
-         if (xp(l,2) .ge. qy(ny-1)) then
+         if (xp(l,2) .gt. qy(ny-1)) then
            xp(l,2) = qy(1) + ( xp(l,2) - qy(ny-1) )
          else if (xp(l,2) .le. qy(1)) then
            xp(l,2) = qy(ny-1) - (qy(1) - xp(l,2))
          endif
 c         ijkp(l,2) = nint(xp(l,2)/dy)
 
-         if (xp(l,3) .ge. qz(nz-1)) then
+         if (xp(l,3) .gt. qz(nz-1)) then
            xp(l,3) = qz(1) + ( xp(l,3) - qz(nz-1) )
 c           ijkp(l,3) = nint(xp(l,3)/delz)
          else if (xp(l,3) .le. qz(1)) then
            xp(l,3) = qz(nz-1) - (qz(1) - xp(l,3))
 c           ijkp(l,3) = nint(xp(l,3)/delz)
          endif
-
-
 
  10      continue
 
@@ -570,7 +568,6 @@ c      endwhere
       return
       end SUBROUTINE move_ion_half
 c----------------------------------------------------------------------
-
 
 
 c----------------------------------------------------------------------
