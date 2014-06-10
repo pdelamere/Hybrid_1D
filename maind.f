@@ -416,7 +416,7 @@ c**********************************************************************
 
          !convert main cell covarient bt to main cell contravarient
 c         call cov_to_contra(bt,btmf) 
-            call edge_to_center(bt,btc)
+c            call edge_to_center(bt,btc)
             call curlB(bt,np,aj)     
 
          !update fluid velocity, uf 
@@ -444,7 +444,7 @@ c         call trans_pf_LaxWend2(pf,pf1,ufp1)
 c         call predict_B(b1,b12,b1p2,bt,btmf,E,aj,up,uf,uf2,np,nf,nu,
 c     x                  gradP) 
 
-            call predict_B(b0,b1,b12,b1p2,bt,btc,E,aj,up,np,nu) 
+            call predict_B(b0,b1,b12,b1p2,bt,E,aj,up,np,nu) 
 
 c         call correct_nf(nf,nf1,ufp1)
 

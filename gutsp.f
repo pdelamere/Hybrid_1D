@@ -1836,6 +1836,193 @@ c               up(i,j,k,3) = ct(i,j,k,3)
 c----------------------------------------------------------------------
 
 
+c----------------------------------------------------------------------
+      SUBROUTINE update_up_2(vp,np,up)
+c----------------------------------------------------------------------
+c      include 'incurv.h'
+
+      real vp(Ni_max,3),
+     x     np(nx,ny,nz),
+     x     up(nx,ny,nz,3)
+
+c      real volb,nvolb      !np times vol times beta
+
+      real cnt(nx,ny,nz)
+
+      real recvbuf(nx*ny*nz)
+      integer count
+      count = nx*ny*nz
+
+
+c      integer dest, source
+c      real out_buf_z(nx,ny,3)
+c      real in_buf_z(nx,ny,3)
+c      integer cnt_buf_z
+c      integer reqs(2)
+c      integer stats(MPI_STATUS_SIZE,2)
+
+      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+
+c      cnt_buf_z = nx*ny*3
+
+c      real recvbuf(nx*ny*nz)
+c      integer count
+c      count = nx*ny*nz
+    
+
+      do 10 m=1,3          !clear out temp variable ct
+         do 10 i=1,nx
+            do 10 j=1,ny
+               do 10 k=1,nz
+                  up(i,j,k,m)=0.0
+                  ct(i,j,k,m)=0.0
+ 10            continue
+               
+               cnt(:,:,:) = 0.0
+               
+c      where (ijkp(:,1) .eq. 1)
+c         wquad(:,1) = 0.0
+c      endwhere
+     
+
+    
+      do 20 l=1,Ni_tot
+
+         i=ijkp(l,1)!+wquad(l,1)
+         j=ijkp(l,2)!+wquad(l,2)
+         k=ijkp(l,3)!+wquad(l,3)
+
+         ip = i+1
+         jp = j+1
+         kp = k+1
+
+c         nvolb = 1.0
+c         if (np(i,j,k) .gt. 0.0) then
+c         nvolb = np(i,j,k)*volb
+         cnt(i,j,k) = cnt(i,j,k) + wght(l,1)
+         ct(i,j,k,1) = ct(i,j,k,1) + vp(l,1)*wght(l,1) 
+         ct(i,j,k,2) = ct(i,j,k,2) + vp(l,2)*wght(l,1) 
+         ct(i,j,k,3) = ct(i,j,k,3) + vp(l,3)*wght(l,1) 
+         
+c         endif
+
+c         if (np(ip,j,k) .gt. 0.0) then
+c         nvolb = np(ip,j,k)*volb
+         cnt(ip,j,k) = cnt(ip,j,k) + wght(l,2)
+         ct(ip,j,k,1) = ct(ip,j,k,1) + vp(l,1)*wght(l,2) 
+         ct(ip,j,k,2) = ct(ip,j,k,2) + vp(l,2)*wght(l,2) 
+         ct(ip,j,k,3) = ct(ip,j,k,3) + vp(l,3)*wght(l,2) 
+c         endif
+
+c         if (np(i,j,kp) .gt. 0.0) then
+c         nvolb = np(i,j,kp)*volb
+         cnt(i,j,kp) = cnt(i,j,kp) + wght(l,3)
+         ct(i,j,kp,1) = ct(i,j,kp,1) + vp(l,1)*wght(l,3) 
+         ct(i,j,kp,2) = ct(i,j,kp,2) + vp(l,2)*wght(l,3) 
+         ct(i,j,kp,3) = ct(i,j,kp,3) + vp(l,3)*wght(l,3) 
+c         endif
+
+c         if (np(ip,j,kp) .gt. 0.0) then
+c         nvolb = np(ip,j,kp)*volb
+         cnt(ip,j,kp) = cnt(ip,j,kp) + wght(l,4) 
+         ct(ip,j,kp,1) = ct(ip,j,kp,1) + vp(l,1)*wght(l,4) 
+         ct(ip,j,kp,2) = ct(ip,j,kp,2) + vp(l,2)*wght(l,4) 
+         ct(ip,j,kp,3) = ct(ip,j,kp,3) + vp(l,3)*wght(l,4) 
+c         endif
+
+c         if (np(i,jp,k) .gt. 0.0) then
+c         nvolb = np(i,jp,k)*volb
+         cnt(i,jp,k) = cnt(i,jp,k) + wght(l,5)
+         ct(i,jp,k,1) = ct(i,jp,k,1) + vp(l,1)*wght(l,5) 
+         ct(i,jp,k,2) = ct(i,jp,k,2) + vp(l,2)*wght(l,5) 
+         ct(i,jp,k,3) = ct(i,jp,k,3) + vp(l,3)*wght(l,5) 
+c         endif
+
+c         if (np(ip,jp,k) .gt. 0.0) then
+c         nvolb = np(ip,jp,k)*volb
+         cnt(ip,jp,k) = cnt(ip,jp,k) + wght(l,6)
+         ct(ip,jp,k,1) = ct(ip,jp,k,1) + vp(l,1)*wght(l,6) 
+         ct(ip,jp,k,2) = ct(ip,jp,k,2) + vp(l,2)*wght(l,6) 
+         ct(ip,jp,k,3) = ct(ip,jp,k,3) + vp(l,3)*wght(l,6) 
+c         endif
+
+c         if (np(i,jp,kp) .gt. 0.0) then
+c         nvolb = np(i,jp,kp)*volb
+         cnt(i,jp,kp) = cnt(i,jp,kp) + wght(l,7)
+         ct(i,jp,kp,1) = ct(i,jp,kp,1) + vp(l,1)*wght(l,7) 
+         ct(i,jp,kp,2) = ct(i,jp,kp,2) + vp(l,2)*wght(l,7) 
+         ct(i,jp,kp,3) = ct(i,jp,kp,3) + vp(l,3)*wght(l,7) 
+c         endif
+
+c         if (np(ip,jp,kp) .gt. 0.0) then
+c         nvolb = np(ip,jp,kp)*volb
+         cnt(ip,jp,kp) = cnt(ip,jp,kp) + wght(l,8)
+         ct(ip,jp,kp,1) = ct(ip,jp,kp,1) + vp(l,1)*wght(l,8) 
+         ct(ip,jp,kp,2) = ct(ip,jp,kp,2) + vp(l,2)*wght(l,8) 
+         ct(ip,jp,kp,3) = ct(ip,jp,kp,3) + vp(l,3)*wght(l,8) 
+c         endif
+
+ 20   continue
+
+
+c use for periodic boundary conditions
+      ct(nx-1,:,:,:) = ct(nx-1,:,:,:)+ct(1,:,:,:)
+      cnt(nx-1,:,:) = cnt(nx-1,:,:)+cnt(1,:,:)
+
+      ct(:,ny-1,:,:) = ct(:,ny-1,:,:)+ct(:,1,:,:)
+      cnt(:,ny-1,:) = cnt(:,ny-1,:)+cnt(:,1,:)
+
+      ct(:,:,nz-1,:) = ct(:,:,nz-1,:)+ct(:,:,1,:)
+      cnt(:,:,nz-1) = cnt(:,:,nz-1)+cnt(:,:,1)
+
+      call MPI_Barrier(MPI_COMM_WORLD,ierr)
+
+c      call periodic(ct)
+c      call periodic_scalar(cnt)
+
+      where (cnt(:,:,:) .gt. 0.0)
+         ct(:,:,:,1) = ct(:,:,:,1)/cnt(:,:,:)/procnum
+         ct(:,:,:,2) = ct(:,:,:,2)/cnt(:,:,:)/procnum
+         ct(:,:,:,3) = ct(:,:,:,3)/cnt(:,:,:)/procnum
+      endwhere
+
+
+c      call periodic(ct)
+
+
+      call MPI_Barrier(MPI_COMM_WORLD,ierr)
+
+         
+      call MPI_ALLREDUCE(ct(:,:,:,1),recvbuf,count,
+     x     MPI_REAL,MPI_SUM,MPI_COMM_WORLD,ierr)
+      ct(:,:,:,1) = reshape(recvbuf,(/nx,ny,nz/))
+      
+      call MPI_ALLREDUCE(ct(:,:,:,2),recvbuf,count,
+     x     MPI_REAL,MPI_SUM,MPI_COMM_WORLD,ierr)
+      ct(:,:,:,2) = reshape(recvbuf,(/nx,ny,nz/))
+      
+      call MPI_ALLREDUCE(ct(:,:,:,3),recvbuf,count,
+     x     MPI_REAL,MPI_SUM,MPI_COMM_WORLD,ierr)
+      ct(:,:,:,3) = reshape(recvbuf,(/nx,ny,nz/))
+
+      call periodic(ct)
+
+      do 30 i=1,nx-1      !interpolate back to contravarient positions
+         do 30 j=1,ny-1
+            do 30 k=1,nz-1
+               up(i,j,k,1) = 0.5*(ct(i,j,k,1)+ct(i+1,j,k,1))
+               up(i,j,k,2) = 0.5*(ct(i,j,k,2)+ct(i,j+1,k,2))
+               up(i,j,k,3) = 0.5*(ct(i,j,k,3)+ct(i,j,k+1,3))
+
+ 30            continue
+
+      call periodic(up)
+
+      call MPI_BARRIER(MPI_COMM_WORLD,ierr)
+
+      return
+      end SUBROUTINE update_up_2
+c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------

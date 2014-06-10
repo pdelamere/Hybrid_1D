@@ -36,7 +36,6 @@ c----------------------------------------------------------------------
 !! RANDOM_INITIALIZE initializes the FORTRAN90 random number seed.
 !
 !  Discussion:
-      integer*4 Ni_max, Ni_tot_0!
 !    If you don't initialize the FORTRAN90 random number generator
 !    routine RANDOM_NUMBER, which is used by calls like
 !

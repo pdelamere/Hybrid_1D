@@ -991,7 +991,7 @@ cc----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
-      SUBROUTINE get_E(E,b0,bt,btc,aj,up,np,nu)
+      SUBROUTINE get_E(E,b0,bt,aj,up,np,nu)
 c E must be at time level m. We have uf at levels m-1/2 and m+1/2, so
 c the average value is used for uf in the calculation of ui.
 c----------------------------------------------------------------------
@@ -1020,7 +1020,7 @@ c     x     c(nx,ny,nz,3)  !dummy vars for doing cross product
 
       real aa(nx,ny,nz,3)
 
-      call periodic_scalar(np)
+c      call periodic_scalar(np)
 c      call periodic_scalar(nf)
 
       do 10 k=2,nz-1    
@@ -1064,10 +1064,14 @@ c     x                         fnf(m)*0.5*(uf2(i,j,k,m)+uf(i,j,k,m))
  10               continue
 
                   
-      call face_to_center(a,aa)
-c      call edge_to_center(bt,btc)
+c      call face_to_center(a,aa)
+cc      call edge_to_center(bt,btc)
 
-c      call crossf(a,btmf,c)
+cc      call crossf(a,btmf,c)
+c      call crossf2(aa,btc,c)
+
+      call face_to_center(a,aa)
+      call edge_to_center(bt,btc)
       call crossf2(aa,btc,c)
 
                
@@ -1108,7 +1112,7 @@ c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
-      SUBROUTINE predict_B(b0,b1,b12,b1p2,bt,btc,E,aj,up,np,nu)
+      SUBROUTINE predict_B(b0,b1,b12,b1p2,bt,E,aj,up,np,nu)
 c Predictor step in magnetic field update.
 c----------------------------------------------------------------------
 CVD$R VECTOR
@@ -1119,7 +1123,7 @@ CVD$R VECTOR
      x     b12(nx,ny,nz,3),
      x     b1p2(nx,ny,nz,3),
      x     bt(nx,ny,nz,3),
-     x     btc(nx,ny,nz,3),
+c     x     btc(nx,ny,nz,3),
      x     E(nx,ny,nz,3),
      x     aj(nx,ny,nz,3),
      x     up(nx,ny,nz,3),
@@ -1132,8 +1136,7 @@ c     x     gradP(nx,ny,nz,3)
 
       real curl_E(nx,ny,nz,3)   !curl of E
 
-      call get_E(E,b0,bt,btc,aj,up,np,nu)  !E at time level m 
-
+      call get_E(E,b0,bt,aj,up,np,nu)  !E at time level m 
 
       call curlE(E,curl_E)
 c      call fix_tangential_E(E)
@@ -1192,7 +1195,7 @@ c     x     bdp(nx,ny,nz,3)
 
       real b1p1(nx,ny,nz,3)   !b1 at time level m + 1/2
       real btp1(nx,ny,nz,3)   !bt at time level m + 1/2
-c      real btp1mf(nx,ny,nz,3) !btp1 at contravarient position
+      real btp1mf(nx,ny,nz,3) !btp1 at contravarient position
       real btc(nx,ny,nz,3) !btp1 at contravarient position
       real aa(nx,ny,nz,3) 
     
@@ -1217,7 +1220,7 @@ c     x     c(nx,ny,nz,3)    !dummy vars for doing cross product
 
       call curlB(btp1,np,aj)
 
-      call periodic_scalar(np)
+c      call periodic_scalar(np)
 c      call periodic_scalar(nf)
 
       do 10 k=2,nz-1       
@@ -1260,9 +1263,14 @@ c                  a(i,j,k,m) = - fnp(m)*up(i,j,k,m) -
 c     x                           fnf(m)*uf(i,j,k,m)
  10               continue
 
-c      call cov_to_contra(btp1,btp1mf)
-      call edge_to_center(btp1,btc)
+
       call face_to_center(a,aa)
+      call edge_to_face(btp1,btp1mf)   !add shift to cell face for smoothing
+      call face_to_center(btp1mf,btc)
+
+c      call cov_to_contra(btp1,btp1mf)
+c      call edge_to_center(btp1,btc)
+c      call face_to_center(a,aa)
 
 c      call crossf(a,btp1mf,c)
       call crossf2(aa,btc,c)
