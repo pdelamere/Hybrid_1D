@@ -172,7 +172,7 @@ c 10            continue
 
 c==============stretch x direction=====================================
                
-      xsf = 1.0
+      xsf = 0.0
 c up from center
       do 12 i = ri,ri+nrgrd
          dx_grid(i) = dx
@@ -208,7 +208,7 @@ c      print*,'dx...',dx_grid
 
 c==============stretch z direction=====================================
 
-      zsf = 1.0  !z stretch factor
+      zsf = 0.0  !z stretch factor
 c up from center
       do 32 k = rk,rk+nrgrd
          dz_grid(k) = delz

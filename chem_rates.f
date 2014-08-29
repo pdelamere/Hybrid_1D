@@ -548,13 +548,13 @@ c      real Nofr(200)        !number of neutrals as func of r
 
       call Neut_Center(cx,cy,cz)
 
-      dNi = 10.0
+      dNi = 1.0
       l1 = Ni_tot+1
 
       do l = l1,l1+dNi
          theta = pad_ranf()*2*PI
-         vp(l,1) = 0.0 !vsw+57.0*cos(theta) !+dvx
-         vp(l,2) = 0.0 !57.0*sin(theta) !+dvz 
+         vp(l,1) = vsw+57.0*cos(theta) !+dvx
+         vp(l,2) = 57.0*sin(theta) !+dvz 
          vp(l,3) = 0.0
 
 c         vp(l,1) = 0.0
