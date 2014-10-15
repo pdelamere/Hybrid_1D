@@ -3,6 +3,7 @@
       USE global
       USE gutsf
       USE boundary
+      USE grid_interp
 
       contains
 
@@ -608,6 +609,77 @@ c      write(*,*) 'Charge exchange rate...',chex_rate
 c      return
 c      end SUBROUTINE charge_exchange
 cc----------------------------------------------------------------------
+
+
+
+c----------------------------------------------------------------------
+      SUBROUTINE get_gradP(gradP,np)
+c----------------------------------------------------------------------
+c      include 'incurv.h'
+      
+      real gradP(nx,ny,nz,3),
+     x     np(nx,ny,nz)
+
+c      real etemp0
+c      parameter (etemp0 = 100.0*11604.505) !eV to Kelvin
+      real a0,np1,gdnp
+      real gnpf(nx,ny,nz,3)
+      real etemp
+
+      etemp = etemp0*11604.505 !eV to Kelvin
+c      a(:,:,:,:) = 0.0
+
+      do 10 i=2,nx-1
+         do 10 j=2,ny-1
+            do 10 k=2,nz-1
+
+               np1 =  0.5*(np(i+1,j,k)+np(i,j,k))
+               gdnp = (np(i+1,j,k)-np(i,j,k))/dx_grid(i)
+               a0 = kboltz*etemp/(mion*np1)
+c               a(i,j,k,1) = a0*gdnp
+               gnpf(i,j,k,1) = a0*gdnp
+
+               np1 =  0.5*(np(i,j+1,k)+np(i,j,k))
+               gdnp = (np(i,j+1,k)-np(i,j,k))/dy_grid(j)
+               a0 = kboltz*etemp/(mion*np1) 
+c               a(i,j,k,2) = a0*gdnp
+               gnpf(i,j,k,2) = a0*gdnp
+
+               np1 =  0.5*(np(i,j,k+1)+np(i,j,k))
+               gdnp = (np(i,j,k+1)-np(i,j,k))/dz_grid(k)
+               a0 = kboltz*etemp/(mion*np1) 
+c               a(i,j,k,3) = a0*gdnp
+               gnpf(i,j,k,3) = a0*gdnp
+
+
+ 10         continue
+
+            call face_to_center(gnpf,gradP)
+
+c      do 10 i=2,nx-1
+c         do 10 j=2,ny-1
+c            do 10 k=2,nz-1
+cc               ntot = np(i,j,k) + nf(i,j,k)
+c               a0 = kboltz*etemp0/(mO*np(i,j,k))
+cc               a1 = kboltz*np(i,j,k)/(mO*np(i,j,k))               
+c               gradP(i,j,k,1) = a0*( 0.5*(np(i+1,j,k)+np(i,j,k))
+c     x              - 0.5*(np(i,j,k)+np(i-1,j,k)) )/dx 
+cc    x              + a1*( 0.5*(etemp(i+1,j,k)+etemp(i,j,k))
+cc    x              - 0.5*(etemp(i,j,k)+etemp(i-1,j,k)) )/dx
+c               gradP(i,j,k,2) = a0*( 0.5*(np(i,j+1,k)+np(i,j,k))
+c     x                          - 0.5*(np(i,j,k)+np(i,j-1,k)) )/dy
+cc     x                  + a1*( 0.5*(etemp(i,j+1,k)+etemp(i,j,k))
+cc     x                    - 0.5*(etemp(i,j,k)+etemp(i,j-1,k)) )/dy
+c               gradP(i,j,k,3) = a0*( 0.5*(np(i,j,k+1)+np(i,j,k))
+c     x                      - 0.5*(np(i,j,k)+np(i,j,k-1)) )/dz_grid(k)
+cc     x                  + a1*( 0.5*(etemp(i,j,k+1)+etemp(i,j,k))
+cc     x                - 0.5*(etemp(i,j,k)+etemp(i,j,k-1)) )/dz_grid(k)
+c 10         continue
+
+
+      return
+      end SUBROUTINE get_gradP
+c----------------------------------------------------------------------
 
 
 

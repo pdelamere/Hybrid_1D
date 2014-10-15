@@ -991,7 +991,7 @@ cc----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
-      SUBROUTINE get_E(E,b0,bt,aj,up,np,nu)
+      SUBROUTINE get_E(E,b0,bt,aj,up,np,nu,gradP)
 c E must be at time level m. We have uf at levels m-1/2 and m+1/2, so
 c the average value is used for uf in the calculation of ui.
 c----------------------------------------------------------------------
@@ -1008,12 +1008,13 @@ c     x     uf(nx,ny,nz,3),
 c     x     uf2(nx,ny,nz,3),
      x     np(nx,ny,nz),
 c     x     nf(nx,ny,nz),
-     x     nu(nx,ny,nz)
-c     x     gradP(nx,ny,nz,3)
+     x     nu(nx,ny,nz),
+     x     gradP(nx,ny,nz,3)
 
       real ntot(3)         !total density np + nf
       real fnp(3),fnf(3)   !fraction np and nf of n
       real npave(3)
+      real gradPmf(3)
 
 c      real a(nx,ny,nz,3), 
 c     x     c(nx,ny,nz,3)  !dummy vars for doing cross product
@@ -1078,8 +1079,12 @@ c      call crossf2(aa,btc,c)
       do 20 k=2,nz-1      
          do 20 j=2,ny-1   
             do 20 i=2,nx-1
+               gradPmf(1) = 0.5*(gradP(i,j,k,1) + gradP(i+1,j,k,1))
+               gradPmf(2) = 0.5*(gradP(i,j,k,2) + gradP(i,j+1,k,2))
+               gradPmf(3) = 0.5*(gradP(i,j,k,3) + gradP(i,j,k+1,3))
                do 20 m=1,3 
                   E(i,j,k,m) = c(i,j,k,m) + nu(i,j,k)*aj(i,j,k,m)
+     x                 - gradPmf(m)
 c     x                         + nuei*aj(i,j,k,m) !- gradP(i,j,k,m)
 c     x                         + etar(i,j,k,m)*aj(i,j,k,m)
  20               continue
@@ -1112,7 +1117,7 @@ c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
-      SUBROUTINE predict_B(b0,b1,b12,b1p2,bt,E,aj,up,np,nu)
+      SUBROUTINE predict_B(b0,b1,b12,b1p2,bt,E,aj,up,np,nu,gradP)
 c Predictor step in magnetic field update.
 c----------------------------------------------------------------------
 CVD$R VECTOR
@@ -1131,12 +1136,12 @@ c     x     uf(nx,ny,nz,3),
 c     x     uf2(nx,ny,nz,3),
      x     np(nx,ny,nz),
 c     x     nf(nx,ny,nz),
-     x     nu(nx,ny,nz)
-c     x     gradP(nx,ny,nz,3)
+     x     nu(nx,ny,nz),
+     x     gradP(nx,ny,nz,3)
 
       real curl_E(nx,ny,nz,3)   !curl of E
 
-      call get_E(E,b0,bt,aj,up,np,nu)  !E at time level m 
+      call get_E(E,b0,bt,aj,up,np,nu,gradP)  !E at time level m 
 
       call curlE(E,curl_E)
 c      call fix_tangential_E(E)
@@ -1171,7 +1176,7 @@ c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
-      SUBROUTINE get_Ep1(E,b0,b1,b1p2,aj,up,np,nu)
+      SUBROUTINE get_Ep1(E,b0,b1,b1p2,aj,up,np,nu,gradP)
 c The main feature here is that E must be calculated at time level
 c m + 1/2.  That means that we need B at m + 1/2.  So b1p1 is
 c calculated as 0.5*(b1 + b1p2).  uf and np are already at time level
@@ -1189,8 +1194,8 @@ CVD$R VECTOR
 c     x     uf(nx,ny,nz,3),
      x     np(nx,ny,nz),
 c     x     nf(nx,ny,nz),
-     x     nu(nx,ny,nz)
-c     x     gradP(nx,ny,nz,3),
+     x     nu(nx,ny,nz),
+     x     gradP(nx,ny,nz,3)
 c     x     bdp(nx,ny,nz,3)
 
       real b1p1(nx,ny,nz,3)   !b1 at time level m + 1/2
@@ -1202,6 +1207,7 @@ c     x     bdp(nx,ny,nz,3)
       real ntot(3)            !total density np + nf
       real fnp(3),fnf(3)      !fraction np and nf of n
       real npave(3)
+      real gradPmf(3)
 
 c      real a(nx,ny,nz,3),
 c     x     c(nx,ny,nz,3)    !dummy vars for doing cross product
@@ -1278,8 +1284,14 @@ c      call crossf(a,btp1mf,c)
       do 20 k=2,nz-1       
          do 20 j=2,ny-1     
             do 20 i=2,nx-1  
+               gradPmf(1) = 0.5*(gradP(i,j,k,1) + gradP(i+1,j,k,1))
+               gradPmf(2) = 0.5*(gradP(i,j,k,2) + gradP(i,j+1,k,2))
+               gradPmf(3) = 0.5*(gradP(i,j,k,3) + gradP(i,j,k+1,3))
+               
                do 20 m=1,3 
+
                   E(i,j,k,m) = c(i,j,k,m) + nu(i,j,k)*aj(i,j,k,m)
+     x                 - gradPmf(m)
 c     x                         + nuei*aj(i,j,k,m) !- gradP(i,j,k,m)
 c     x                         + etar(i,j,k,m)*aj(i,j,k,m)
  20               continue
@@ -1306,7 +1318,7 @@ c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
-      SUBROUTINE correct_B(b0,b1,b1p2,E,aj,up,np,nu)
+      SUBROUTINE correct_B(b0,b1,b1p2,E,aj,up,np,nu,gradP)
 c Corrector step in magnetic field update.
 c----------------------------------------------------------------------
 CVD$R VECTOR
@@ -1321,13 +1333,13 @@ CVD$R VECTOR
 c     x     uf(nx,ny,nz,3),
      x     np(nx,ny,nz),
 c     x     nf(nx,ny,nz),
-     x     nu(nx,ny,nz)
-c     x     gradP(nx,ny,nz,3),
+     x     nu(nx,ny,nz),
+     x     gradP(nx,ny,nz,3)
 c     x     bdp(nx,ny,nz,3)
 
       real curl_E(nx,ny,nz,3)            !curl of E
 
-      call get_Ep1(E,b0,b1,b1p2,aj,up,np,nu)  
+      call get_Ep1(E,b0,b1,b1p2,aj,up,np,nu,gradP)  
                                                    !E at time level m 
 
       call curlE(E,curl_E)

@@ -100,7 +100,7 @@ c     x     pf1(nx,ny,nz)      !fluid pressure at n-1/2
       real chex_rate
       real bill_rate
       real satnp
-c      real gradP(nx,ny,nz,3)
+      real gradP(nx,ny,nz,3)
 c      real etemp(nx,ny,nz)
 c      real ugradu(nx,ny,nz,3)
 c      real minnf,maxnf
@@ -382,16 +382,18 @@ c         endif
          call Energy_diag(vp,b0,b1,E,Evp,Euf,EB1,EB1x,EB1y,EB1z,EE,
      x                    EeP,nu,up,np)
 
+         call get_gradP(gradp,np)
+
          call curlB(bt,np,aj)
 c         call cov_to_contra(bt,btmf)
 c         call face_to_center(btmf,btc)       !interp bt to cell center
          call edge_to_center(bt,btc)
          call extrapol_up(up,vp,vp1,np)
-         call get_Ep(Ep,aj,np,up,btc,nu)
+         call get_Ep(Ep,aj,np,up,btc,nu,gradP)
          call get_vplus_vminus(Ep,btc,vp,vplus,vminus)
          call improve_up(vp1,vplus,vminus,up,np)
 
-         call get_Ep(Ep,aj,np,up,btc,nu)
+         call get_Ep(Ep,aj,np,up,btc,nu,gradP)
          call get_vplus_vminus(Ep,btc,vp,vplus,vminus)
          call get_vp_final(Ep,vp,vp1,vplus)
 
@@ -402,6 +404,7 @@ c         call check_min_den_boundary(np,xp,vp,up)
          call update_np(np)             !np at n+1/2
          call update_up(vp,np,up)       !up at n+1/2
 
+         call get_gradP(gradp,np)
          
 c**********************************************************************
 c SUBCYCLING LOOP!
@@ -444,12 +447,12 @@ c         call trans_pf_LaxWend2(pf,pf1,ufp1)
 c         call predict_B(b1,b12,b1p2,bt,btmf,E,aj,up,uf,uf2,np,nf,nu,
 c     x                  gradP) 
 
-            call predict_B(b0,b1,b12,b1p2,bt,E,aj,up,np,nu) 
+            call predict_B(b0,b1,b12,b1p2,bt,E,aj,up,np,nu,gradP) 
 
 c         call correct_nf(nf,nf1,ufp1)
 
 c         call correct_B(b0,b1,b1p2,E,aj,up,uf,np,nfp1,nu,gradP,bdp)
-            call correct_B(b0,b1,b1p2,E,aj,up,np,nu)
+            call correct_B(b0,b1,b1p2,E,aj,up,np,nu,gradP)
 
 c         call f_update_tlev(uf,uf2,b1,b12,b1p2,bt,b0,bdp)
             call f_update_tlev(b1,b12,b1p2,bt,b0)

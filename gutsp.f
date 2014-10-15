@@ -151,7 +151,7 @@ c----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
-      SUBROUTINE get_Ep(Ep,aj,np,up,btc,nu)
+      SUBROUTINE get_Ep(Ep,aj,np,up,btc,nu,gradP)
 c----------------------------------------------------------------------
 CVD$F VECTOR
       !!include 'incurv.h'
@@ -163,8 +163,8 @@ c     x     nf(nx,ny,nz),
      x     up(nx,ny,nz,3),
 c     x     uf(nx,ny,nz,3),
      x     btc(nx,ny,nz,3),
-     x     nu(nx,ny,nz)
-c     x     gradP(nx,ny,nz,3)
+     x     nu(nx,ny,nz),
+     x     gradP(nx,ny,nz,3)
 
       real ajc(nx,ny,nz,3),       !aj at cell center
      x     upc(nx,ny,nz,3),       !up at cell center
@@ -238,14 +238,14 @@ c     x          + ufc(i,jp,kp,m)*wght(l,7) + ufc(ip,jp,kp,m)*wght(l,8)
      x               + btc(i,jp,kp,m)*wght(l,7) 
      x               + btc(ip,jp,kp,m)*wght(l,8)
 
-c            gradP3(m) = gradPc(i,j,k,m)*wght(l,1) 
-c     x                + gradPc(ip,j,k,m)*wght(l,2) 
-c     x                + gradPc(i,j,kp,m)*wght(l,3) 
-c     x                + gradPc(ip,j,kp,m)*wght(l,4)
-c     x                + gradPc(i,jp,k,m)*wght(l,5) 
-c     x                + gradPc(ip,jp,k,m)*wght(l,6)
-c     x                + gradPc(i,jp,kp,m)*wght(l,7) 
-c     x                + gradPc(ip,jp,kp,m)*wght(l,8)
+            gradP3(m) = gradP(i,j,k,m)*wght(l,1) 
+     x                + gradP(ip,j,k,m)*wght(l,2) 
+     x                + gradP(i,j,kp,m)*wght(l,3) 
+     x                + gradP(ip,j,kp,m)*wght(l,4)
+     x                + gradP(i,jp,k,m)*wght(l,5) 
+     x                + gradP(ip,jp,k,m)*wght(l,6)
+     x                + gradP(i,jp,kp,m)*wght(l,7) 
+     x                + gradP(ip,jp,kp,m)*wght(l,8)
 
  15         continue
 
@@ -261,7 +261,7 @@ c     x                     - fnf*uf3(m)
          cc(3) = aa(1)*bb(2) - aa(2)*bb(1)
 
          do 30 m=1,3
-            Ep(l,m) = cc(m) 
+            Ep(l,m) = cc(m) - gradP3(m)
 c     x                + nu(i,j,k)*fnf*(uf3(m)-up3(m)) 
 c     x                - gradP3(m) 
 c     x                + nuei*aj3(m) 

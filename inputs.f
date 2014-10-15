@@ -12,6 +12,7 @@
       integer nout
       real vsw
       real vth
+      real etemp0
       real Ni_tot_frac
       real dx_frac
       real nu_init_frac
@@ -98,6 +99,8 @@ c----------------------------------------------------------------
       write(*,*) 'vsw...............',vsw
       read(100,*) vth
       write(*,*) 'vth...............',vth
+      read(100,*) etemp0
+      write(*,*) 'etemp0............',etemp0
 c      read(100,*) Ni_max
 c      write(*,*) 'Ni_max....',Ni_max
       read(100,*) Ni_tot_frac
